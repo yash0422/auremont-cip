@@ -11,684 +11,177 @@
   :root {
     --gold: #C9A84C;
     --gold-light: #E2C97E;
-    --gold-dim: #8B6F35;
+    --gold-dim: #9B7D3A;
     --black: #080808;
     --surface: #0F0F0F;
     --surface2: #161616;
     --surface3: #1E1E1E;
     --border: rgba(201,168,76,0.15);
-    --border-bright: rgba(201,168,76,0.35);
-    --text: #E8E0D0;
-    --text-muted: #7A7060;
-    --text-dim: #4A4540;
-    --red: #C0392B;
-    --green: #1A7A4A;
-    --amber: #B8860B;
-    --blue: #1A4A7A;
+    --border-bright: rgba(201,168,76,0.4);
+    --text: #F0E8D8;
+    --text-muted: #B0A090;
+    --text-dim: #706050;
     --radius: 4px;
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--text); font-family:'Barlow',sans-serif; font-weight:300; min-height:100vh; overflow-x:hidden; }
 
   /* HEADER */
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding: 0 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-    background: var(--surface);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+  .header { border-bottom:1px solid var(--border); padding:0 2.5rem; display:flex; align-items:center; justify-content:space-between; height:64px; background:var(--surface); position:sticky; top:0; z-index:100; }
+  .logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:500; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; }
+  .logo span { font-weight:300; color:var(--text-muted); font-size:0.72rem; display:block; letter-spacing:0.2em; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; margin-top:2px; }
+  .conn-status { font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; font-family:'Barlow Condensed',sans-serif; color:var(--text-muted); display:flex; align-items:center; gap:7px; }
+  .conn-dot { width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+  .conn-dot.live { background:#2ECC71; box-shadow:0 0 7px #2ECC71; }
+  .conn-dot.error { background:#E74C3C; }
 
-  .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.25rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    color: var(--gold);
-    text-transform: uppercase;
-  }
+  /* MAIN */
+  .main { padding:2rem 2.5rem; max-width:1600px; margin:0 auto; }
 
-  .logo span {
-    font-weight: 300;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    display: block;
-    letter-spacing: 0.2em;
-    font-family: 'Barlow Condensed', sans-serif;
-    text-transform: uppercase;
-    margin-top: 1px;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .conn-status {
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-family: 'Barlow Condensed', sans-serif;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .conn-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--text-dim);
-  }
-  .conn-dot.live { background: #1A7A4A; box-shadow: 0 0 6px #1A7A4A; }
-  .conn-dot.error { background: var(--red); }
-
-  /* MAIN LAYOUT */
-  .main { padding: 2rem 2.5rem; max-width: 1600px; margin: 0 auto; }
-
-  /* METRICS BAR */
-  .metrics-bar {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 2rem;
-    overflow: hidden;
-  }
-
-  .metric {
-    background: var(--surface);
-    padding: 1.25rem 1.5rem;
-    position: relative;
-  }
-
-  .metric::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 1.5rem;
-    right: 1.5rem;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-  }
-
-  .metric-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-  }
-
-  .metric-value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2rem;
-    font-weight: 500;
-    color: var(--gold);
-    line-height: 1;
-  }
-
-  .metric-sub {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    margin-top: 0.25rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: 0.05em;
-  }
+  /* METRICS */
+  .metrics-bar { display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:2rem; overflow:hidden; }
+  .metric { background:var(--surface); padding:1.25rem 1.5rem; }
+  .metric-label { font-family:'Barlow Condensed',sans-serif; font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem; font-weight:400; }
+  .metric-value { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:500; color:var(--gold); line-height:1; }
+  .metric-sub { font-size:0.72rem; color:var(--text-muted); margin-top:0.3rem; font-family:'Barlow Condensed',sans-serif; letter-spacing:0.05em; }
 
   /* TYPE TOGGLE */
-  .type-toggle {
-    display: flex;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    width: fit-content;
-  }
-
-  .type-btn {
-    padding: 0.65rem 2rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: var(--surface);
-    color: var(--text-muted);
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-
-  .type-btn:hover { color: var(--gold-light); background: var(--surface2); }
-
-  .type-btn.active {
-    background: var(--surface3);
-    color: var(--gold);
-  }
-
-  .type-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gold);
-  }
-
-  .type-btn .count {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 0.65rem;
-    background: rgba(201,168,76,0.1);
-    color: var(--gold-dim);
-    padding: 1px 6px;
-    border-radius: 2px;
-  }
-
-  .type-btn.active .count {
-    background: rgba(201,168,76,0.2);
-    color: var(--gold);
-  }
+  .type-toggle { display:flex; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1.5rem; width:fit-content; }
+  .type-btn { padding:0.7rem 2rem; font-family:'Barlow Condensed',sans-serif; font-size:0.82rem; letter-spacing:0.15em; text-transform:uppercase; background:var(--surface); color:var(--text-muted); border:none; cursor:pointer; transition:all 0.2s; position:relative; }
+  .type-btn:hover { color:var(--gold-light); background:var(--surface2); }
+  .type-btn.active { background:var(--surface3); color:var(--gold); }
+  .type-btn.active::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--gold); }
+  .type-btn .count { display:inline-block; margin-left:8px; font-size:0.68rem; background:rgba(201,168,76,0.12); color:var(--gold-dim); padding:1px 7px; border-radius:2px; }
+  .type-btn.active .count { background:rgba(201,168,76,0.22); color:var(--gold); }
 
   /* TOOLBAR */
-  .toolbar {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .search-wrap {
-    flex: 1;
-    min-width: 220px;
-    position: relative;
-  }
-
-  .search-wrap input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.6rem 1rem 0.6rem 2.5rem;
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 300;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .search-wrap input:focus { border-color: var(--border-bright); }
-  .search-wrap input::placeholder { color: var(--text-dim); }
-
-  .search-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
-
-  .filter-select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.6rem 1rem;
-    color: var(--text);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    outline: none;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: border-color 0.2s;
-  }
-
-  .filter-select:focus { border-color: var(--border-bright); }
-  .filter-select option { background: var(--surface2); }
+  .toolbar { display:flex; gap:1rem; margin-bottom:1.25rem; align-items:center; flex-wrap:wrap; }
+  .search-wrap { flex:1; min-width:220px; position:relative; }
+  .search-wrap input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0.65rem 1rem 0.65rem 2.5rem; color:var(--text); font-family:'Barlow',sans-serif; font-size:0.82rem; font-weight:300; outline:none; transition:border-color 0.2s; }
+  .search-wrap input:focus { border-color:var(--border-bright); }
+  .search-wrap input::placeholder { color:var(--text-dim); }
+  .search-icon { position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; }
+  .filter-select { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0.65rem 1rem; color:var(--text); font-family:'Barlow Condensed',sans-serif; font-size:0.78rem; letter-spacing:0.08em; outline:none; cursor:pointer; text-transform:uppercase; transition:border-color 0.2s; }
+  .filter-select:focus { border-color:var(--border-bright); }
+  .filter-select option { background:var(--surface2); color:var(--text); }
 
   /* DEAL PILLS */
-  .deal-pills {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-    align-items: center;
-  }
+  .deal-pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.5rem; align-items:center; }
+  .deal-label { font-family:'Barlow Condensed',sans-serif; font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); margin-right:4px; }
+  .deal-pill { padding:4px 13px; font-family:'Barlow Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; border:1px solid var(--border); border-radius:2px; background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+  .deal-pill:hover { border-color:var(--border-bright); color:var(--gold-light); }
+  .deal-pill.active { border-color:var(--gold-dim); background:rgba(201,168,76,0.08); color:var(--gold); }
 
-  .deal-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-right: 4px;
-  }
-
-  .deal-pill {
-    padding: 4px 12px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .deal-pill:hover { border-color: var(--border-bright); color: var(--gold-light); }
-
-  .deal-pill.active {
-    border-color: var(--gold-dim);
-    background: rgba(201,168,76,0.08);
-    color: var(--gold);
-  }
-
-  /* UPLOAD SECTION */
-  .upload-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .upload-card {
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    background: var(--surface);
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-
-  .upload-card:hover { border-color: var(--border-bright); background: var(--surface2); }
-
-  .upload-card.loaded {
-    border-style: solid;
-    border-color: var(--gold-dim);
-    background: rgba(201,168,76,0.04);
-  }
-
-  .upload-card input[type=file] { display: none; }
-
-  .upload-type-badge {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-    margin-bottom: 0.5rem;
-  }
-
-  .upload-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 0.25rem;
-  }
-
-  .upload-sub { font-size: 0.75rem; color: var(--text-dim); }
-  .upload-file-name { font-size: 0.7rem; color: var(--gold); margin-top: 0.5rem; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.05em; }
-
-  .upload-action {
-    margin-top: 1rem;
-    display: inline-block;
-    padding: 0.4rem 1.25rem;
-    border: 1px solid var(--border-bright);
-    border-radius: var(--radius);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gold);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .upload-action:hover { background: rgba(201,168,76,0.1); }
-
-  /* UPLOAD PROGRESS */
-  .upload-progress {
-    display: none;
-    margin-top: 0.75rem;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: 0.05em;
-  }
+  /* UPLOAD */
+  .upload-section { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; }
+  .upload-card { border:1px dashed var(--border-bright); border-radius:var(--radius); padding:1.5rem; background:var(--surface); text-align:center; transition:all 0.2s; }
+  .upload-card:hover { border-color:var(--gold); background:var(--surface2); }
+  .upload-card.loaded { border-style:solid; border-color:var(--gold-dim); background:rgba(201,168,76,0.04); }
+  .upload-card input[type=file] { display:none; }
+  .upload-type-badge { font-family:'Barlow Condensed',sans-serif; font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:0.5rem; }
+  .upload-title { font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:500; color:var(--text); margin-bottom:0.3rem; }
+  .upload-sub { font-size:0.75rem; color:var(--text-muted); }
+  .upload-file-name { font-size:0.72rem; color:var(--gold); margin-top:0.5rem; font-family:'Barlow Condensed',sans-serif; letter-spacing:0.05em; }
+  .upload-action { margin-top:1rem; display:inline-block; padding:0.45rem 1.5rem; border:1px solid var(--border-bright); border-radius:var(--radius); font-family:'Barlow Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); background:transparent; cursor:pointer; transition:all 0.2s; }
+  .upload-action:hover { background:rgba(201,168,76,0.1); }
+  .upload-progress { display:none; margin-top:0.75rem; font-size:0.72rem; color:var(--text-muted); font-family:'Barlow Condensed',sans-serif; letter-spacing:0.05em; }
 
   /* TABLE */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  .table-header {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .table-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text);
-    letter-spacing: 0.05em;
-  }
-
-  .table-count {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-  }
-
-  .contacts-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-  }
-
-  .contacts-table th {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-    background: var(--surface);
-    font-weight: 400;
-  }
-
-  .contacts-table td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(201,168,76,0.05);
-    color: var(--text);
-    vertical-align: middle;
-    font-weight: 300;
-  }
-
-  .contacts-table tr:hover td { background: rgba(201,168,76,0.03); }
-  .contacts-table tr:last-child td { border-bottom: none; }
-
-  .contact-name { font-weight: 400; color: var(--text); }
-  .contact-title { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .table-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .table-title { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:500; color:var(--text); letter-spacing:0.05em; }
+  .table-count { font-family:'Barlow Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.1em; color:var(--text-muted); text-transform:uppercase; }
+  .contacts-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+  .contacts-table th { padding:0.8rem 1rem; text-align:left; font-family:'Barlow Condensed',sans-serif; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--border); white-space:nowrap; background:var(--surface); font-weight:400; }
+  .contacts-table td { padding:0.8rem 1rem; border-bottom:1px solid rgba(201,168,76,0.06); color:var(--text); vertical-align:middle; font-weight:300; font-size:0.82rem; }
+  .contacts-table tr:hover td { background:rgba(201,168,76,0.04); }
+  .contacts-table tr:last-child td { border-bottom:none; }
+  .contact-name { font-weight:400; color:var(--text); font-size:0.85rem; }
+  .contact-title { font-size:0.72rem; color:var(--text-muted); margin-top:3px; }
 
   /* BADGES */
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 2px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-weight: 400;
-  }
+  .badge { display:inline-block; padding:2px 9px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:0.67rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:400; }
+  .badge-ib { background:rgba(52,152,219,0.15); color:#7EC8E3; border:1px solid rgba(52,152,219,0.25); }
+  .badge-pe { background:rgba(201,168,76,0.12); color:var(--gold-light); border:1px solid rgba(201,168,76,0.25); }
+  .badge-high { background:rgba(46,204,113,0.12); color:#6EE7A0; border:1px solid rgba(46,204,113,0.25); }
+  .badge-med  { background:rgba(243,156,18,0.12); color:#F5C842; border:1px solid rgba(243,156,18,0.25); }
+  .badge-low  { background:rgba(231,76,60,0.12); color:#F1948A; border:1px solid rgba(231,76,60,0.25); }
 
-  .badge-ib { background: rgba(26,74,122,0.3); color: #5A9FD4; border: 1px solid rgba(26,74,122,0.4); }
-  .badge-pe { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
-  .badge-high { background: rgba(26,122,74,0.2); color: #4ABA84; border: 1px solid rgba(26,122,74,0.3); }
-  .badge-med { background: rgba(184,134,11,0.2); color: #D4A830; border: 1px solid rgba(184,134,11,0.3); }
-  .badge-low { background: rgba(192,57,43,0.2); color: #E07060; border: 1px solid rgba(192,57,43,0.3); }
+  .score-num { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:500; }
+  .score-high { color:#6EE7A0; }
+  .score-med  { color:#F5C842; }
+  .score-low  { color:#F1948A; }
 
-  .score-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    font-weight: 500;
-  }
+  .deal-tag { display:inline-block; padding:2px 7px; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.18); border-radius:2px; font-size:0.62rem; font-family:'Barlow Condensed',sans-serif; letter-spacing:0.05em; color:var(--gold-light); margin:1px; }
 
-  .score-high { color: #4ABA84; }
-  .score-med { color: #D4A830; }
-  .score-low { color: #E07060; }
+  .status-select { background:var(--surface2); border:1px solid var(--border); border-radius:2px; color:var(--text-muted); font-family:'Barlow Condensed',sans-serif; font-size:0.67rem; letter-spacing:0.05em; padding:3px 7px; cursor:pointer; outline:none; text-transform:uppercase; transition:border-color 0.2s; }
+  .status-select:hover { border-color:var(--border-bright); color:var(--text); }
+  .status-select option { background:var(--surface2); color:var(--text); }
 
-  .deal-tag {
-    display: inline-block;
-    padding: 1px 6px;
-    background: rgba(201,168,76,0.08);
-    border: 1px solid rgba(201,168,76,0.15);
-    border-radius: 2px;
-    font-size: 0.6rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: 0.05em;
-    color: var(--gold-dim);
-    margin: 1px;
-  }
+  .tier-1 td:first-child { border-left:2px solid var(--gold); }
+  .tier-2 td:first-child { border-left:2px solid var(--border); }
 
-  .status-select {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    color: var(--text-muted);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.06em;
-    padding: 2px 6px;
-    cursor: pointer;
-    outline: none;
-    text-transform: uppercase;
-    transition: border-color 0.2s;
-  }
-  .status-select:hover { border-color: var(--border-bright); }
-  .status-select option { background: var(--surface2); }
-
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-
-  .empty-state-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    opacity: 0.2;
-  }
-
-  .empty-state p {
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  /* GOLD DIVIDER */
-  .gold-line {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-    margin: 2rem 0;
-    opacity: 0.4;
-  }
-
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: var(--surface2);
-    border: 1px solid var(--border-bright);
-    border-radius: var(--radius);
-    padding: 0.85rem 1.5rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    color: var(--gold);
-    z-index: 1000;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s;
-    max-width: 320px;
-  }
-
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.error { border-color: rgba(192,57,43,0.5); color: #E07060; }
-
-  /* LOADING */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(8,8,8,0.85);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .loading-overlay.show { display: flex; }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border);
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .loading-text {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  /* FOOTER */
-  .footer {
-    text-align: center;
-    padding: 2rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    border-top: 1px solid var(--border);
-    margin-top: 3rem;
-  }
-
-  .footer span { color: var(--gold-dim); }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: var(--surface); }
-  ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+  /* EMPTY */
+  .empty-state { text-align:center; padding:4rem 2rem; }
+  .empty-icon { font-size:2.5rem; margin-bottom:1rem; opacity:0.15; }
+  .empty-state p { color:var(--text-muted); font-size:0.85rem; font-family:'Barlow Condensed',sans-serif; letter-spacing:0.08em; text-transform:uppercase; }
 
   /* SECTION HEADING */
-  .section-heading {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--text);
-    letter-spacing: 0.08em;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+  .section-heading { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:400; color:var(--text); letter-spacing:0.08em; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem; }
+  .section-heading::after { content:''; flex:1; height:1px; background:var(--border); }
 
-  .section-heading::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+  /* GOLD LINE */
+  .gold-line { height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),transparent); margin:2rem 0; opacity:0.35; }
 
   /* ACTION BTN */
-  .action-btn {
-    padding: 3px 10px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    color: var(--text-muted);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .action-btn:hover { border-color: var(--border-bright); color: var(--gold); }
+  .action-btn { padding:3px 10px; background:transparent; border:1px solid var(--border); border-radius:2px; color:var(--text-muted); font-family:'Barlow Condensed',sans-serif; font-size:0.67rem; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; transition:all 0.15s; white-space:nowrap; text-decoration:none; display:inline-block; }
+  .action-btn:hover { border-color:var(--border-bright); color:var(--gold); }
 
-  .tier-1 { border-left: 2px solid var(--gold); }
-  .tier-2 { border-left: 2px solid var(--border); }
+  /* TOAST */
+  .toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface2); border:1px solid var(--border-bright); border-radius:var(--radius); padding:0.85rem 1.5rem; font-family:'Barlow Condensed',sans-serif; font-size:0.8rem; letter-spacing:0.08em; color:var(--gold); z-index:1000; transform:translateY(100px); opacity:0; transition:all 0.3s; max-width:360px; }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.error { border-color:rgba(231,76,60,0.5); color:#F1948A; }
+
+  /* LOADING */
+  .loading-overlay { display:none; position:fixed; inset:0; background:rgba(8,8,8,0.88); z-index:200; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
+  .loading-overlay.show { display:flex; }
+  .loading-spinner { width:36px; height:36px; border:1px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { font-family:'Barlow Condensed',sans-serif; font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); }
+
+  /* FOOTER */
+  .footer { text-align:center; padding:2rem; font-family:'Barlow Condensed',sans-serif; font-size:0.67rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dim); border-top:1px solid var(--border); margin-top:3rem; }
+  .footer span { color:var(--gold-dim); }
+
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:var(--surface); }
+  ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
 </style>
 </head>
 <body>
 
-<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text" id="loadingText">Processing contacts...</div>
+  <div class="loading-text" id="loadingText">Loading contacts...</div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- HEADER -->
 <header class="header">
   <div class="logo">
     Auremont Capital
-    <span>Contact Intelligence Platform</span>
+    <span>200 · PE · IB — Contact Intelligence Platform</span>
   </div>
-  <div class="header-right">
-    <div class="conn-status">
-      <div class="conn-dot" id="connDot"></div>
-      <span id="connText">Connecting...</span>
-    </div>
+  <div class="conn-status">
+    <div class="conn-dot" id="connDot"></div>
+    <span id="connText">Connecting...</span>
   </div>
 </header>
 
-<!-- MAIN -->
 <main class="main">
 
   <!-- METRICS -->
-  <div class="metrics-bar" id="metricsBar">
+  <div class="metrics-bar">
     <div class="metric">
       <div class="metric-label">Total Contacts</div>
       <div class="metric-value" id="mTotal">—</div>
@@ -716,42 +209,37 @@
     </div>
   </div>
 
-  <!-- UPLOAD -->
-  <div class="section-heading">Upload Contacts</div>
-  <div class="upload-section">
-    <div class="upload-card" id="ibCard">
-      <input type="file" id="ibFile" accept=".xlsx,.xls,.csv">
-      <div class="upload-type-badge">Investment Banking</div>
-      <div class="upload-title">IB Contacts Excel</div>
-      <div class="upload-sub">First Name, Last Name, Title, Company, Email, Country, Revenue...</div>
-      <label for="ibFile" class="upload-action">Select File</label>
-      <div class="upload-file-name" id="ibFileName"></div>
-      <div class="upload-progress" id="ibProgress"></div>
+  <!-- UPLOAD — only shown when DB is empty -->
+  <div id="uploadSection" style="display:none;">
+    <div class="section-heading">Upload Contacts</div>
+    <div class="upload-section">
+      <div class="upload-card" id="ibCard">
+        <input type="file" id="ibFile" accept=".xlsx,.xls,.csv">
+        <div class="upload-type-badge">Investment Banking</div>
+        <div class="upload-title">IB Contacts Excel</div>
+        <div class="upload-sub">First Name · Last Name · Title · Company · Email · Country · Revenue</div>
+        <label for="ibFile" class="upload-action">Select File</label>
+        <div class="upload-file-name" id="ibFileName"></div>
+        <div class="upload-progress" id="ibProgress"></div>
+      </div>
+      <div class="upload-card" id="peCard">
+        <input type="file" id="peFile" accept=".xlsx,.xls,.csv">
+        <div class="upload-type-badge">Private Equity</div>
+        <div class="upload-title">PE Contacts Excel</div>
+        <div class="upload-sub">First Name · Last Name · Title · Company · Email · Country · Funding</div>
+        <label for="peFile" class="upload-action">Select File</label>
+        <div class="upload-file-name" id="peFileName"></div>
+        <div class="upload-progress" id="peProgress"></div>
+      </div>
     </div>
-    <div class="upload-card" id="peCard">
-      <input type="file" id="peFile" accept=".xlsx,.xls,.csv">
-      <div class="upload-type-badge">Private Equity</div>
-      <div class="upload-title">PE Contacts Excel</div>
-      <div class="upload-sub">First Name, Last Name, Title, Company, Email, Country, Funding...</div>
-      <label for="peFile" class="upload-action">Select File</label>
-      <div class="upload-file-name" id="peFileName"></div>
-      <div class="upload-progress" id="peProgress"></div>
-    </div>
+    <div class="gold-line"></div>
   </div>
-
-  <div class="gold-line"></div>
 
   <!-- TYPE TOGGLE -->
   <div class="type-toggle">
-    <button class="type-btn active" onclick="setType('ALL')" id="btnAll">
-      All Contacts <span class="count" id="cntAll">0</span>
-    </button>
-    <button class="type-btn" onclick="setType('IB')" id="btnIB">
-      Investment Banking <span class="count" id="cntIB">0</span>
-    </button>
-    <button class="type-btn" onclick="setType('PE')" id="btnPE">
-      Private Equity <span class="count" id="cntPE">0</span>
-    </button>
+    <button class="type-btn active" onclick="setType('ALL')" id="btnALL">All Contacts <span class="count" id="cntALL">0</span></button>
+    <button class="type-btn" onclick="setType('IB')" id="btnIB">Investment Banking <span class="count" id="cntIB">0</span></button>
+    <button class="type-btn" onclick="setType('PE')" id="btnPE">Private Equity <span class="count" id="cntPE">0</span></button>
   </div>
 
   <!-- TOOLBAR -->
@@ -771,29 +259,29 @@
     </select>
     <select class="filter-select" id="filterStatus" onchange="renderTable()">
       <option value="">All Statuses</option>
-      <option value="Not contacted">Not Contacted</option>
-      <option value="Teaser sent">Teaser Sent</option>
-      <option value="LinkedIn connected">LinkedIn Connected</option>
-      <option value="NDA offered">NDA Offered</option>
-      <option value="NDA signed">NDA Signed</option>
-      <option value="IM shared">IM Shared</option>
-      <option value="Call scheduled">Call Scheduled</option>
-      <option value="Meeting done">Meeting Done</option>
-      <option value="Converted">Converted</option>
-      <option value="Passed">Passed</option>
+      <option>Not contacted</option>
+      <option>Teaser sent</option>
+      <option>LinkedIn connected</option>
+      <option>NDA offered</option>
+      <option>NDA signed</option>
+      <option>IM shared</option>
+      <option>Call scheduled</option>
+      <option>Meeting done</option>
+      <option>Converted</option>
+      <option>Passed</option>
     </select>
   </div>
 
   <!-- DEAL PILLS -->
   <div class="deal-pills">
-    <span class="deal-label">Deal filter:</span>
-    <button class="deal-pill active" onclick="setDeal('all', this)">All Deals</button>
-    <button class="deal-pill" onclick="setDeal('albarsha', this)">Al Barsha School</button>
-    <button class="deal-pill" onclick="setDeal('garhoud', this)">Garhoud B2L</button>
-    <button class="deal-pill" onclick="setDeal('ksa', this)">KSA Expansion</button>
-    <button class="deal-pill" onclick="setDeal('falcon', this)">Project Falcon</button>
-    <button class="deal-pill" onclick="setDeal('victoria', this)">Victoria School</button>
-    <button class="deal-pill" onclick="setDeal('marvina', this)">MARVINA IP</button>
+    <span class="deal-label">Deal:</span>
+    <button class="deal-pill active" onclick="setDeal('all',this)">All Deals</button>
+    <button class="deal-pill" onclick="setDeal('albarsha',this)">Al Barsha School</button>
+    <button class="deal-pill" onclick="setDeal('garhoud',this)">Garhoud B2L</button>
+    <button class="deal-pill" onclick="setDeal('ksa',this)">KSA Expansion</button>
+    <button class="deal-pill" onclick="setDeal('falcon',this)">Project Falcon</button>
+    <button class="deal-pill" onclick="setDeal('victoria',this)">Victoria School</button>
+    <button class="deal-pill" onclick="setDeal('marvina',this)">MARVINA IP</button>
   </div>
 
   <!-- TABLE -->
@@ -803,7 +291,7 @@
       <div class="table-count" id="tableCount">—</div>
     </div>
     <div style="overflow-x:auto;">
-      <table class="contacts-table" id="contactsTable">
+      <table class="contacts-table">
         <thead>
           <tr>
             <th>Name / Title</th>
@@ -818,14 +306,7 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr>
-            <td colspan="9">
-              <div class="empty-state">
-                <div class="empty-state-icon">◈</div>
-                <p>Upload IB and PE Excel files to populate the contact matrix</p>
-              </div>
-            </td>
-          </tr>
+          <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">◈</div><p>Loading contacts from database...</p></div></td></tr>
         </tbody>
       </table>
     </div>
@@ -834,259 +315,149 @@
 </main>
 
 <footer class="footer">
-  <span>Auremont Capital</span> — 200-PE-IB Contact Intelligence Platform &nbsp;|&nbsp; Confidential &nbsp;|&nbsp; DIFC, Dubai
+  <span>Auremont Capital</span> — Contact Intelligence Platform &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; DIFC, Dubai
 </footer>
 
 <script>
-// ============================================================
-// SUPABASE CONFIG
-// ============================================================
 const SUPABASE_URL = 'https://nxqdkiggnflajyzmrsbj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54cWRraWdnbmZsYWp5em1yc2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTA3OTQsImV4cCI6MjA5NjM4Njc5NH0.9lBOvvFMU0CXm1MQbiGW7aSge56uVlEbJ12SDr5EN3M';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ============================================================
-// DEALS CONFIG
-// ============================================================
 const DEALS = {
-  albarsha: { name: 'Al Barsha School', keywords: ['education','school','learning','academic','real estate','private equity','uae','gcc','dubai','mena','curriculum','khda'] },
-  garhoud:  { name: 'Garhoud B2L',      keywords: ['education','real estate','infrastructure','lease','developer','uae','dubai','build','construction'] },
-  ksa:      { name: 'KSA Expansion',    keywords: ['education','saudi','ksa','vision 2030','gcc','mena','school','riyadh','jeddah','kingdom'] },
-  falcon:   { name: 'Project Falcon',   keywords: ['healthcare','hospital','medical','clinical','health','uae','gcc','dubai','mohap','specialty'] },
-  victoria: { name: 'Victoria School',  keywords: ['education','school','large cap','institutional','equity','british','curriculum','600'] },
-  marvina:  { name: 'MARVINA IP',       keywords: ['technology','fintech','proptech','data','analytics','ai','saas','software','platform','digital','tech'] }
+  albarsha: 'Al Barsha School',
+  garhoud:  'Garhoud B2L',
+  ksa:      'KSA Expansion',
+  falcon:   'Project Falcon',
+  victoria: 'Victoria School',
+  marvina:  'MARVINA IP'
 };
 
-// GCC / MENA countries
-const GCC_COUNTRIES = ['united arab emirates','uae','saudi arabia','ksa','bahrain','kuwait','oman','qatar','jordan','egypt','lebanon','morocco','iraq','turkey'];
+const GCC = ['united arab emirates','uae','dubai','abu dhabi','sharjah','saudi','ksa','bahrain','kuwait','qatar','oman','jordan','egypt','lebanon','india','pakistan','morocco'];
 
-// ============================================================
-// STATE
-// ============================================================
 let allContacts = [];
 let activeType  = 'ALL';
 let activeDeal  = 'all';
 
-// ============================================================
-// SCORING ENGINE — Fixed
-// ============================================================
-function scoreContact(c) {
-  let score = 30;
-
-  const title    = (c.title || c.seniority_level || '').toLowerCase();
-  const company  = (c.company_name || '').toLowerCase();
-  const country  = (c.employee_country || c.company_country || '').toLowerCase();
-  const city     = (c.employee_city || c.company_city || '').toLowerCase();
-  const funding  = (c.total_funding || c.latest_funding_amount || '').toLowerCase().replace(/[,$]/g,'');
-  const revenue  = (c.annual_revenue || '').toLowerCase().replace(/[,$]/g,'');
-  const email    = (c.email || '').toLowerCase();
-  const emailSt  = (c.email_status || '').toLowerCase();
-
-  // Seniority — 0–25 pts
-  if (/chief|ceo|cio|cfo|coo|cto|president|managing.?director|\bmd\b|founding.?partner|\bpartner\b/i.test(title)) score += 25;
-  else if (/director|vice.?president|\bvp\b|head.?of|principal|general.?partner/i.test(title)) score += 16;
-  else if (/manager|associate.?director|senior/i.test(title)) score += 8;
-  else if (/associate|analyst/i.test(title)) score += 3;
-
-  // Geography — 0–18 pts
-  const geoText = country + ' ' + city;
-  if (/united.arab.emirates|uae|\bdubai\b|abu.dhabi|sharjah/i.test(geoText)) score += 18;
-  else if (/saudi|ksa|riyadh|jeddah|bahrain|kuwait|qatar|oman|doha/i.test(geoText)) score += 15;
-  else if (/gcc|mena|jordan|egypt|lebanon/i.test(geoText)) score += 10;
-  else if (/india|singapore|london|uk|europe|france|germany/i.test(geoText)) score += 5;
-
-  // Sector relevance — 0–12 pts
-  if (/education|school|hospital|healthcare|real.estate|infrastructure|property/i.test(company + title)) score += 12;
-  else if (/invest|capital|fund|asset|equity|finance|venture/i.test(company + title)) score += 8;
-
-  // Funding / AUM signal — 0–10 pts
-  const fundNum = parseFloat(funding.replace(/[^0-9.]/g,''));
-  if (!isNaN(fundNum) && fundNum > 0) {
-    if (fundNum >= 500)      score += 10;
-    else if (fundNum >= 100) score += 7;
-    else if (fundNum >= 50)  score += 4;
-    else                     score += 2;
-  }
-
-  // Email quality — 0–5 pts
-  if (email && !/invalid|bad|risky/i.test(emailSt)) score += 5;
-
-  return Math.min(Math.max(score, 0), 100);
-}
-
-// ============================================================
-// DEAL MATCHING ENGINE — Fixed
-// ============================================================
-function matchDeals(c) {
-  const haystack = [
-    c.title, c.seniority_level, c.company_name,
-    c.employee_country, c.company_country,
-    c.employee_city, c.company_city,
-    c.website, c.latest_funding_type
-  ].map(v => (v || '').toLowerCase()).join(' ');
-
-  return Object.entries(DEALS)
-    .filter(([, d]) => d.keywords.some(kw => haystack.includes(kw)))
-    .map(([k]) => k);
-}
-
-// ============================================================
-// COLUMN NORMALIZER — handles any Excel column name variant
-// ============================================================
-function normalizeRow(row, type) {
-  const get = (...keys) => {
-    for (const k of keys) {
-      const found = Object.keys(row).find(rk => rk.trim().toLowerCase() === k.toLowerCase());
-      if (found && row[found] !== undefined && row[found] !== null && row[found] !== '') {
-        return String(row[found]).trim();
-      }
-    }
-    return '';
-  };
-
-  return {
-    contact_type:           type,
-    first_name:             get('First Name','first_name','firstname'),
-    last_name:              get('Last Name','last_name','lastname'),
-    seniority_level:        get('Seniority Level','seniority_level','seniority'),
-    title:                  get('Title','title','job_title','jobtitle'),
-    company_name:           get('Company Name','company_name','company','organization'),
-    email:                  get('Email','email','email_address'),
-    email_status:           get('Email Status','email_status','emailstatus'),
-    company_phone:          get('Company Phone','company_phone','phone'),
-    num_employees:          get('# Employees','num_employees','employees','headcount'),
-    employee_linkedin_url:  get('Employee Linkedin URL','employee_linkedin_url','linkedin_url','linkedin'),
-    website:                get('Website','website','company_website','web'),
-    company_linkedin_url:   get('Company Linkedin URL','company_linkedin_url'),
-    employee_city:          get('Employee City','employee_city','city','location'),
-    employee_state:         get('Employee State','employee_state','state'),
-    employee_country:       get('Employee Country','employee_country','country'),
-    company_address:        get('Company Address','company_address','address'),
-    company_city:           get('Company City','company_city'),
-    company_state:          get('Company State','company_state'),
-    company_country:        get('Company Country','company_country'),
-    annual_revenue:         get('Annual Revenue','annual_revenue','revenue'),
-    total_funding:          get('Total Funding','total_funding','funding'),
-    latest_funding_type:    get('Latest Funding/Transaction Type','Latest Funding Type','latest_funding_type','funding_type'),
-    latest_funding_amount:  get('Latest Funding Amount','latest_funding_amount','funding_amount'),
-    latest_funding_date:    get('Latest Raised/Transaction Date','Latest Raised Date','latest_funding_date','funding_date'),
-  };
-}
-
-// ============================================================
-// SUPABASE CONNECTION CHECK
-// ============================================================
+// ── Connection ──────────────────────────────────────────────
 async function checkConnection() {
   try {
     const { error } = await db.from('contacts').select('id').limit(1);
     if (error) throw error;
-    document.getElementById('connDot').className  = 'conn-dot live';
-    document.getElementById('connText').textContent = 'Supabase connected';
-  } catch (e) {
-    document.getElementById('connDot').className  = 'conn-dot error';
+    document.getElementById('connDot').className = 'conn-dot live';
+    document.getElementById('connText').textContent = 'Supabase · Live';
+  } catch {
+    document.getElementById('connDot').className = 'conn-dot error';
     document.getElementById('connText').textContent = 'Connection error';
-    showToast('Supabase connection failed — check schema.sql was run', true);
   }
 }
 
-// ============================================================
-// LOAD CONTACTS FROM SUPABASE
-// ============================================================
+// ── Load contacts ───────────────────────────────────────────
 async function loadContacts() {
-  showLoading('Loading contacts from database...');
+  showLoading('Loading contacts...');
   try {
     const { data, error } = await db.from('contacts').select('*').order('score', { ascending: false });
     if (error) throw error;
     allContacts = data || [];
+
+    // Show upload section only if empty
+    document.getElementById('uploadSection').style.display = allContacts.length === 0 ? 'block' : 'none';
+
     updateMetrics();
+    updateTypeCounts();
     updateCountryFilter();
     renderTable();
-    updateTypeCounts();
   } catch (e) {
-    showToast('Failed to load contacts: ' + e.message, true);
+    showToast('Failed to load: ' + e.message, true);
   } finally {
     hideLoading();
   }
 }
 
-// ============================================================
-// PARSE + UPLOAD EXCEL
-// ============================================================
-function handleFile(file, type, cardId, nameId, progressId) {
-  document.getElementById(nameId).textContent = file.name;
-  document.getElementById(cardId).classList.add('loaded');
-  const progress = document.getElementById(progressId);
-  progress.style.display = 'block';
-  progress.textContent = 'Reading file...';
+// ── Render table ────────────────────────────────────────────
+function renderTable() {
+  const search   = (document.getElementById('searchInput').value || '').toLowerCase();
+  const scoreF   = document.getElementById('filterScore').value;
+  const countryF = (document.getElementById('filterCountry').value || '').toLowerCase();
+  const statusF  = document.getElementById('filterStatus').value;
 
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const wb   = XLSX.read(e.target.result, { type: 'array' });
-      const ws   = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-      progress.textContent = `Parsed ${rows.length} rows — scoring...`;
-
-      const contacts = rows.map(row => {
-        const c = normalizeRow(row, type);
-        c.score        = scoreContact(c);
-        c.deal_matches = matchDeals(c);
-        c.priority_tier = c.score >= 75 ? 'Tier 1' : 'Tier 2';
-        c.outreach_status = 'Not contacted';
-        return c;
-      });
-
-      // Batch upsert — 50 rows at a time
-      const BATCH = 50;
-      let uploaded = 0;
-      for (let i = 0; i < contacts.length; i += BATCH) {
-        const batch = contacts.slice(i, i + BATCH);
-        const { error } = await db.from('contacts').insert(batch);
-        if (error) throw error;
-        uploaded += batch.length;
-        progress.textContent = `Uploading... ${uploaded}/${contacts.length}`;
-      }
-
-      progress.textContent = `✓ ${contacts.length} contacts saved`;
-      showToast(`${contacts.length} ${type} contacts uploaded successfully`);
-      await loadContacts();
-    } catch (err) {
-      progress.textContent = '✗ Upload failed';
-      showToast('Upload error: ' + err.message, true);
+  let filtered = allContacts.filter(c => {
+    if (activeType !== 'ALL' && c.contact_type !== activeType) return false;
+    if (search) {
+      const hay = [c.first_name,c.last_name,c.full_name,c.company_name,c.employee_country,c.company_country,c.title,c.employee_city,c.employee_state].map(v=>(v||'').toLowerCase()).join(' ');
+      if (!hay.includes(search)) return false;
     }
-  };
-  reader.readAsArrayBuffer(file);
+    const s = c.score || 0;
+    if (scoreF === 'high' && s < 75) return false;
+    if (scoreF === 'med'  && (s < 50 || s >= 75)) return false;
+    if (scoreF === 'low'  && s >= 50) return false;
+    if (countryF) {
+      const geo = ((c.employee_country||'')+(c.company_country||'')).toLowerCase();
+      if (!geo.includes(countryF)) return false;
+    }
+    if (statusF && c.outreach_status !== statusF) return false;
+    if (activeDeal !== 'all') {
+      if (!Array.isArray(c.deal_matches) || !c.deal_matches.includes(activeDeal)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('tableCount').textContent = `${filtered.length} contact${filtered.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('tableBody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">◈</div><p>${allContacts.length === 0 ? 'Run insert_contacts.sql in Supabase to populate' : 'No contacts match current filters'}</p></div></td></tr>`;
+    return;
+  }
+
+  const statuses = ['Not contacted','Teaser sent','LinkedIn connected','NDA offered','NDA signed','IM shared','Call scheduled','Meeting done','Converted','Passed'];
+
+  tbody.innerHTML = filtered.slice(0, 100).map(c => {
+    const name     = (c.full_name || ((c.first_name||'')+' '+(c.last_name||''))).trim() || '—';
+    const score    = c.score || 0;
+    const sCls     = score >= 75 ? 'score-high' : score >= 50 ? 'score-med' : 'score-low';
+    const bCls     = score >= 75 ? 'badge-high' : score >= 50 ? 'badge-med'  : 'badge-low';
+    const tCls     = c.contact_type === 'IB' ? 'badge-ib' : 'badge-pe';
+    const tierCls  = (c.priority_tier === 'Tier 1') ? 'tier-1' : 'tier-2';
+    const country  = c.employee_country || c.company_country || '—';
+    const tierColor = c.priority_tier === 'Tier 1' ? 'var(--gold)' : 'var(--text-muted)';
+    const deals    = Array.isArray(c.deal_matches) && c.deal_matches.length
+      ? c.deal_matches.map(d => `<span class="deal-tag">${DEALS[d]||d}</span>`).join('')
+      : `<span style="color:var(--text-dim);font-size:0.72rem;">—</span>`;
+    const opts     = statuses.map(s => `<option value="${s}"${c.outreach_status===s?' selected':''}>${s}</option>`).join('');
+    const liBtn    = c.employee_linkedin_url ? `<a href="${c.employee_linkedin_url}" target="_blank" class="action-btn">LinkedIn ↗</a>` : `<span style="color:var(--text-dim);font-size:0.7rem;">—</span>`;
+
+    return `<tr class="${tierCls}">
+      <td><div class="contact-name">${name}</div><div class="contact-title">${c.title||c.seniority_level||'—'}</div></td>
+      <td>${c.company_name||'—'}</td>
+      <td><span class="badge ${tCls}">${c.contact_type}</span></td>
+      <td>${country}</td>
+      <td><span class="score-num ${sCls}">${score}</span>&nbsp;<span class="badge ${bCls}">${score>=75?'High':score>=50?'Med':'Low'}</span></td>
+      <td><span style="font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:0.06em;color:${tierColor};">${c.priority_tier||'Tier 2'}</span></td>
+      <td>${deals}</td>
+      <td><select class="status-select" onchange="updateStatus('${c.id}',this.value)">${opts}</select></td>
+      <td>${liBtn}</td>
+    </tr>`;
+  }).join('');
+
+  if (filtered.length > 100) {
+    tbody.innerHTML += `<tr><td colspan="9" style="text-align:center;padding:1rem;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:0.08em;color:var(--text-dim);">Showing top 100 of ${filtered.length} — refine filters to narrow</td></tr>`;
+  }
 }
 
-document.getElementById('ibFile').addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0], 'IB', 'ibCard', 'ibFileName', 'ibProgress');
-});
-
-document.getElementById('peFile').addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0], 'PE', 'peCard', 'peFileName', 'peProgress');
-});
-
-// ============================================================
-// UPDATE STATUS IN SUPABASE
-// ============================================================
+// ── Status update ───────────────────────────────────────────
 async function updateStatus(id, status) {
   const { error } = await db.from('contacts').update({ outreach_status: status }).eq('id', id);
-  if (error) { showToast('Failed to update status', true); return; }
+  if (error) { showToast('Update failed', true); return; }
   const c = allContacts.find(x => x.id === id);
   if (c) c.outreach_status = status;
-  showToast('Status updated');
+  showToast('Status saved');
 }
 
-// ============================================================
-// FILTERS & RENDER
-// ============================================================
-function setType(type) {
-  activeType = type;
-  ['ALL','IB','PE'].forEach(t => {
-    document.getElementById('btn' + t).classList.toggle('active', t === type);
-  });
+// ── Filters ─────────────────────────────────────────────────
+function setType(t) {
+  activeType = t;
+  ['ALL','IB','PE'].forEach(x => document.getElementById('btn'+x).classList.toggle('active', x===t));
   renderTable();
 }
 
@@ -1097,104 +468,13 @@ function setDeal(deal, el) {
   renderTable();
 }
 
-function renderTable() {
-  const search    = (document.getElementById('searchInput').value || '').toLowerCase();
-  const scoreF    = document.getElementById('filterScore').value;
-  const countryF  = document.getElementById('filterCountry').value.toLowerCase();
-  const statusF   = document.getElementById('filterStatus').value;
-
-  let filtered = allContacts.filter(c => {
-    // Type filter
-    if (activeType !== 'ALL' && c.contact_type !== activeType) return false;
-
-    // Search
-    if (search) {
-      const hay = [c.first_name, c.last_name, c.full_name, c.company_name, c.employee_country, c.company_country, c.title, c.employee_city].map(v => (v||'').toLowerCase()).join(' ');
-      if (!hay.includes(search)) return false;
-    }
-
-    // Score filter
-    const s = c.score || 0;
-    if (scoreF === 'high' && s < 75)          return false;
-    if (scoreF === 'med' && (s < 50 || s >= 75)) return false;
-    if (scoreF === 'low' && s >= 50)           return false;
-
-    // Country filter
-    if (countryF) {
-      const cCountry = (c.employee_country || c.company_country || '').toLowerCase();
-      if (!cCountry.includes(countryF)) return false;
-    }
-
-    // Status filter
-    if (statusF && c.outreach_status !== statusF) return false;
-
-    // Deal filter
-    if (activeDeal !== 'all') {
-      if (!c.deal_matches || !c.deal_matches.includes(activeDeal)) return false;
-    }
-
-    return true;
-  });
-
-  document.getElementById('tableCount').textContent = `${filtered.length} contact${filtered.length !== 1 ? 's' : ''}`;
-
-  const tbody = document.getElementById('tableBody');
-
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">◈</div><p>${allContacts.length === 0 ? 'Upload IB and PE Excel files to populate the contact matrix' : 'No contacts match current filters'}</p></div></td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = filtered.slice(0, 100).map(c => {
-    const name    = (c.full_name || ((c.first_name || '') + ' ' + (c.last_name || ''))).trim() || '—';
-    const score   = c.score || 0;
-    const scoreCls = score >= 75 ? 'score-high' : score >= 50 ? 'score-med' : 'score-low';
-    const badgeCls = score >= 75 ? 'badge-high' : score >= 50 ? 'badge-med' : 'badge-low';
-    const tierCls  = c.priority_tier === 'Tier 1' ? 'tier-1' : 'tier-2';
-    const typeCls  = c.contact_type === 'IB' ? 'badge-ib' : 'badge-pe';
-    const country  = c.employee_country || c.company_country || '—';
-    const deals    = (c.deal_matches || []).map(d => `<span class="deal-tag">${DEALS[d]?.name || d}</span>`).join('') || '<span style="color:var(--text-dim);font-size:0.7rem;">—</span>';
-
-    const statusOptions = ['Not contacted','Teaser sent','LinkedIn connected','NDA offered','NDA signed','IM shared','Call scheduled','Meeting done','Converted','Passed'];
-    const statusSel = `<select class="status-select" onchange="updateStatus('${c.id}', this.value)">${statusOptions.map(s => `<option value="${s}" ${c.outreach_status === s ? 'selected' : ''}>${s}</option>`).join('')}</select>`;
-
-    const linkedinBtn = c.employee_linkedin_url ? `<a href="${c.employee_linkedin_url}" target="_blank" class="action-btn" style="text-decoration:none;">LinkedIn</a>` : '';
-
-    return `<tr class="${tierCls}">
-      <td>
-        <div class="contact-name">${name}</div>
-        <div class="contact-title">${c.title || c.seniority_level || '—'}</div>
-      </td>
-      <td>${c.company_name || '—'}</td>
-      <td><span class="badge ${typeCls}">${c.contact_type}</span></td>
-      <td>${country}</td>
-      <td><span class="score-num ${scoreCls}">${score}</span> <span class="badge ${badgeCls}" style="margin-left:4px;">${score >= 75 ? 'High' : score >= 50 ? 'Med' : 'Low'}</span></td>
-      <td><span style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.06em;color:${c.priority_tier === 'Tier 1' ? 'var(--gold)' : 'var(--text-dim)'};">${c.priority_tier || 'Tier 2'}</span></td>
-      <td>${deals}</td>
-      <td>${statusSel}</td>
-      <td>${linkedinBtn}</td>
-    </tr>`;
-  }).join('');
-
-  if (filtered.length > 100) {
-    tbody.innerHTML += `<tr><td colspan="9" style="text-align:center;padding:1rem;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.08em;color:var(--text-dim);">Showing top 100 of ${filtered.length} — refine filters to narrow</td></tr>`;
-  }
-}
-
-// ============================================================
-// METRICS & UI UPDATES
-// ============================================================
+// ── Metrics ──────────────────────────────────────────────────
 function updateMetrics() {
-  const total = allContacts.length;
   const pe    = allContacts.filter(c => c.contact_type === 'PE').length;
   const ib    = allContacts.filter(c => c.contact_type === 'IB').length;
-  const tier1 = allContacts.filter(c => (c.score || 0) >= 75).length;
-  const gcc   = allContacts.filter(c => {
-    const geo = ((c.employee_country || '') + ' ' + (c.company_country || '') + ' ' + (c.employee_city || '')).toLowerCase();
-    return GCC_COUNTRIES.some(g => geo.includes(g));
-  }).length;
-
-  document.getElementById('mTotal').textContent = total || '—';
+  const tier1 = allContacts.filter(c => (c.score||0) >= 75).length;
+  const gcc   = allContacts.filter(c => GCC.some(g => ((c.employee_country||'')+(c.company_country||'')+(c.employee_city||'')).toLowerCase().includes(g))).length;
+  document.getElementById('mTotal').textContent = allContacts.length || '—';
   document.getElementById('mPE').textContent    = pe    || '—';
   document.getElementById('mIB').textContent    = ib    || '—';
   document.getElementById('mTier1').textContent = tier1 || '—';
@@ -1202,44 +482,68 @@ function updateMetrics() {
 }
 
 function updateTypeCounts() {
-  document.getElementById('cntAll').textContent = allContacts.length;
-  document.getElementById('cntIB').textContent  = allContacts.filter(c => c.contact_type === 'IB').length;
-  document.getElementById('cntPE').textContent  = allContacts.filter(c => c.contact_type === 'PE').length;
+  document.getElementById('cntALL').textContent = allContacts.length;
+  document.getElementById('cntIB').textContent  = allContacts.filter(c=>c.contact_type==='IB').length;
+  document.getElementById('cntPE').textContent  = allContacts.filter(c=>c.contact_type==='PE').length;
 }
 
 function updateCountryFilter() {
-  const countries = [...new Set(allContacts.map(c => c.employee_country || c.company_country || '').filter(Boolean))].sort();
+  const countries = [...new Set(allContacts.map(c=>c.employee_country||c.company_country||'').filter(Boolean))].sort();
   const sel = document.getElementById('filterCountry');
-  const current = sel.value;
-  sel.innerHTML = '<option value="">All Countries</option>' + countries.map(c => `<option value="${c.toLowerCase()}" ${current === c.toLowerCase() ? 'selected' : ''}>${c}</option>`).join('');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Countries</option>' + countries.map(c=>`<option value="${c.toLowerCase()}"${cur===c.toLowerCase()?' selected':''}>${c}</option>`).join('');
 }
 
-// ============================================================
-// TOAST & LOADING
-// ============================================================
-function showToast(msg, isError = false) {
+// ── Upload (shown only when DB empty) ───────────────────────
+function handleFile(file, type, cardId, nameId, progressId) {
+  document.getElementById(nameId).textContent = file.name;
+  document.getElementById(cardId).classList.add('loaded');
+  const prog = document.getElementById(progressId);
+  prog.style.display = 'block';
+  prog.textContent = 'Reading file...';
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const wb   = XLSX.read(e.target.result, { type:'array' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+      prog.textContent = `Parsed ${rows.length} rows — uploading...`;
+      const batch = 50;
+      for (let i = 0; i < rows.length; i += batch) {
+        const { error } = await db.from('contacts').insert(rows.slice(i,i+batch).map(r => ({
+          contact_type: type, first_name: String(r['First Name']||''), last_name: String(r['Last Name']||''),
+          seniority_level: String(r['Seniority Level']||''), title: String(r['Title']||''),
+          company_name: String(r['Company Name']||''), email: String(r['Email']||''),
+          email_status: String(r['Email Status']||''), employee_country: String(r['Employee Country']||''),
+          employee_city: String(r['Employee City']||''), company_country: String(r['Company Country']||''),
+          employee_linkedin_url: String(r['Employee Linkedin URL']||''), website: String(r['Website']||''),
+          annual_revenue: String(r['Annual Revenue']||''), total_funding: String(r['Total Funding']||''),
+          outreach_status: 'Not contacted', score: 0, deal_matches: [], priority_tier: 'Tier 2'
+        })));
+        if (error) throw error;
+      }
+      prog.textContent = `✓ ${rows.length} contacts saved`;
+      showToast(`${rows.length} ${type} contacts uploaded`);
+      await loadContacts();
+    } catch(err) { prog.textContent = '✗ Error: '+err.message; showToast(err.message, true); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+document.getElementById('ibFile').addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0],'IB','ibCard','ibFileName','ibProgress'); });
+document.getElementById('peFile').addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0],'PE','peCard','peFileName','peProgress'); });
+
+// ── Toast & Loading ──────────────────────────────────────────
+function showToast(msg, isError=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className   = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => t.className = 'toast', 3500);
+  t.className = 'toast show' + (isError?' error':'');
+  setTimeout(() => t.className='toast', 3500);
 }
+function showLoading(msg='Loading...') { document.getElementById('loadingText').textContent=msg; document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
 
-function showLoading(msg = 'Loading...') {
-  document.getElementById('loadingText').textContent = msg;
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('show');
-}
-
-// ============================================================
-// INIT
-// ============================================================
-(async () => {
-  await checkConnection();
-  await loadContacts();
-})();
+// ── Init ─────────────────────────────────────────────────────
+(async () => { await checkConnection(); await loadContacts(); })();
 </script>
 </body>
 </html>
