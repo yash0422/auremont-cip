@@ -218,29 +218,20 @@ td { padding: 11px 14px; vertical-align: middle; }
 .li-verified.v-ok  { background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.25); }
 .li-verified.v-no  { background:rgba(239,68,68,0.10);color:#ef4444;border:1px solid rgba(239,68,68,0.20);cursor:pointer; }
 .li-verified.v-find{ background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.25);cursor:pointer; }
-.vbar-wrap { background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap; }
-.vbar-track { flex:1;min-width:180px; }
-.vbar-label { display:flex;justify-content:space-between;margin-bottom:5px; }
-.vbar-label span { font-size:11px;color:var(--text3);font-family:var(--ff-body); }
-.vbar-label strong { font-size:11px;color:var(--gold);font-family:var(--ff-body); }
-.vbar-bg { height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden; }
-.vbar-fill { height:100%;background:linear-gradient(90deg,var(--gold),#22c55e);border-radius:2px;transition:width 0.6s ease; }
+.vbar-wrap { background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin:0 28px 12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap; }
+.vbar-track { flex:1;min-width:200px; }
+.vbar-label { display:flex;justify-content:space-between;margin-bottom:8px; }
+.vbar-label span { font-size:12px;color:var(--text3);font-family:var(--ff-body); }
+.vbar-label strong { font-size:12px;color:var(--gold);font-family:var(--ff-body); }
+.vbar-bg { height:7px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden; }
+.vbar-fill { height:100%;background:linear-gradient(90deg,var(--gold),#22c55e);border-radius:4px;transition:width 0.6s ease; }
 /* AI Modal */
 #ai-modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.78);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;}
 #ai-modal.open{display:flex;}
 .ai-box{background:var(--ink2);border:1px solid var(--border);border-radius:12px;width:100%;max-width:560px;padding:24px;position:relative;}
 .ai-box h3{font-family:var(--ff-head);font-size:18px;color:var(--gold);margin:0 0 3px;}
 .ai-sub{font-size:12px;color:var(--text3);margin-bottom:18px;line-height:1.5;}
-.ai-result{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;min-height:80px;}
-.ai-url{font-size:13px;color:var(--gold);word-break:break-all;margin-bottom:6px;}
-.ai-reason{font-size:12px;color:var(--text2);line-height:1.5;}
-.ai-conf{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;margin-bottom:8px;font-family:var(--ff-body);}
-.conf-H{background:rgba(34,197,94,0.15);color:#22c55e;}
-.conf-M{background:rgba(201,168,76,0.15);color:var(--gold);}
-.conf-L{background:rgba(239,68,68,0.12);color:#ef4444;}
-.ai-spin{text-align:center;padding:20px;color:var(--text3);}
-.ai-spin .sp{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px;}
-.ai-manual{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text1);font-size:13px;margin-bottom:12px;box-sizing:border-box;}
+.ai-manual{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text1);font-size:13px;margin-bottom:8px;box-sizing:border-box;}
 .ai-manual:focus{outline:none;border-color:var(--gold);}
 .ai-btns{display:flex;gap:8px;flex-wrap:wrap;}
 .ai-btns .btn{flex:1;min-width:110px;font-size:12px;}
@@ -392,6 +383,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   .stat-sub { display: none; }
 
   #filter-section { padding: 12px 16px 16px; }
+  .vbar-wrap { margin: 0 16px 12px; }
   #filter-toggle {
     display: flex; align-items: center; justify-content: space-between;
     width: 100%; background: var(--smoke); border: 1px solid var(--bord-gold);
@@ -502,20 +494,22 @@ td { padding: 11px 14px; vertical-align: middle; }
   </div>
 </div>
 
-<!-- FILTERS -->
-<div id="filter-section">
-  <button id="filter-toggle" onclick="toggleFilters()">
-    <span><div class="vbar-wrap">
+<!-- VERIFY PROGRESS BAR -->
+<div class="vbar-wrap">
   <div class="vbar-track">
     <div class="vbar-label"><span>LinkedIn Verification Progress</span><strong id="v-count">0 / 183 verified</strong></div>
     <div class="vbar-bg"><div class="vbar-fill" id="v-fill" style="width:0%"></div></div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
     <button class="vf-btn" id="btn-unverified" onclick="toggleUnverified()">⚠ Unverified Only</button>
-    <button class="btn btn-gold btn-xs" onclick="openAI(null)" style="font-size:11px;padding:4px 14px;">✦ AI Verify Next</button>
+    <button class="btn btn-gold btn-xs" onclick="openAI(null)" style="font-size:11px;padding:4px 14px;">🔍 Verify Next</button>
   </div>
 </div>
-⚙ Filters</span>
+
+<!-- FILTERS -->
+<div id="filter-section">
+  <button id="filter-toggle" onclick="toggleFilters()">
+    <span>⚙ Filters</span>
     <span id="filter-count-badge" style="color:var(--gold)"></span>
   </button>
   <div id="filter-drawer">
@@ -698,29 +692,34 @@ td { padding: 11px 14px; vertical-align: middle; }
 </div>
 <div id="toast"></div>
 
-<!-- AI VERIFY MODAL -->
+<!-- VERIFY MODAL -->
 <div id="ai-modal">
   <div class="ai-box">
     <button onclick="closeAI()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
-    <h3>✦ AI LinkedIn Verify</h3>
+    <h3>🔍 Verify LinkedIn</h3>
     <p class="ai-sub" id="ai-sub">—</p>
-    <div class="ai-result" id="ai-result">
-      <div class="ai-spin"><div class="sp"></div><div>Claude is finding the correct profile…</div></div>
+
+    <!-- Step 1: Search -->
+    <div id="step-search">
+      <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Step 1 — Search LinkedIn for the correct profile:</div>
+        <a id="google-link" href="#" target="_blank" class="btn btn-gold" style="display:inline-block;text-decoration:none;font-size:13px;padding:8px 18px;" onclick="markSearched()">
+          🔎 Search on LinkedIn
+        </a>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;">Opens LinkedIn search — find the person, copy their profile URL from the address bar</div>
+      </div>
+      <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Step 2 — Paste the correct LinkedIn URL here:</div>
+        <input class="ai-manual" id="ai-manual-input" type="text" placeholder="https://www.linkedin.com/in/…" oninput="checkURL()">
+        <div id="url-hint" style="font-size:11px;color:var(--text3);margin-top:4px;display:none;">✓ Looks good</div>
+      </div>
+      <div class="ai-btns">
+        <button class="btn btn-gold" id="save-btn" onclick="saveManual()" disabled style="opacity:0.45;">✓ Save & Verify</button>
+        <button class="btn btn-outline" onclick="markNone()">✗ No LinkedIn</button>
+        <button class="btn btn-outline" onclick="skipRecord()">→ Skip</button>
+      </div>
     </div>
-    <div id="ai-manual-wrap" style="display:none;">
-      <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px;">Paste the correct LinkedIn URL:</label>
-      <input class="ai-manual" id="ai-manual-input" type="text" placeholder="https://www.linkedin.com/in/…">
-    </div>
-    <div class="ai-btns" id="ai-btns-main" style="display:none;">
-      <button class="btn btn-gold" id="ai-accept-btn" onclick="acceptSuggestion()">✓ Accept</button>
-      <button class="btn btn-outline" onclick="showManual()">✏ Manual</button>
-      <button class="btn btn-outline" onclick="markNone()">✗ No LinkedIn</button>
-      <button class="btn btn-outline" onclick="skipRecord()">→ Skip</button>
-    </div>
-    <div class="ai-btns" id="ai-btns-manual" style="display:none;">
-      <button class="btn btn-gold" onclick="saveManual()">✓ Save URL</button>
-      <button class="btn btn-outline" onclick="hideManual()">← Back</button>
-    </div>
+
   </div>
 </div>
 
@@ -1026,18 +1025,172 @@ function setConn(s){const dot=document.getElementById('conn-dot'),txt=document.g
 function showToast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=type==='ok'?'tok':'terr';t.style.display='block';setTimeout(()=>t.style.display='none',3200);}
 
 
+
 // ═══════════════════════════════════════════════
-//  LINKEDIN VERIFICATION — reads/writes directly
-//  to edu_investors columns:
+//  LINKEDIN VERIFICATION — Google Search approach
+//  Writes to 4 columns in edu_investors directly:
 //  kc_li_verified, kc_li_url_corrected,
 //  c2_li_verified, c2_li_url_corrected
 // ═══════════════════════════════════════════════
 
 let showUnverifiedOnly = false;
-let aiRec = null;        // { record, field: 'kc'|'c2' }
-let aiURL  = '';         // suggested URL from Claude
-let aiQueue = [];        // unverified records queue
+let aiRec   = null;   // { record, field: 'kc'|'c2' }
+let aiQueue = [];
 let aiQIdx  = 0;
+
+// ── Verification badge per contact ──
+function liBadge(r, field) {
+  const isKC   = field === 'kc';
+  const rawURL = isKC ? r.key_contact_linkedin  : r.contact2_linkedin;
+  const corURL = isKC ? r.kc_li_url_corrected   : r.c2_li_url_corrected;
+  const done   = isKC ? r.kc_li_verified         : r.c2_li_verified;
+  const name   = isKC ? r.key_contact_name       : r.contact2_name;
+  if (!name) return '';
+  const finalURL = corURL || rawURL;
+  const id = r.investor_id, f = field;
+  if (done) {
+    const link = finalURL ? `<a href="${finalURL}" target="_blank" class="li-btn">in LinkedIn</a>` : '';
+    return link + `<span class="li-verified v-ok" title="Verified ✓">✓</span>`;
+  }
+  if (rawURL) {
+    return `<a href="${rawURL}" target="_blank" class="li-btn">in LinkedIn</a>`
+         + `<span class="li-verified v-no" title="Unverified — click to verify" onclick="openAI('${id}','${f}')">⚠</span>`;
+  }
+  return `<span class="li-verified v-find" onclick="openAI('${id}','${f}')">+ Find</span>`;
+}
+
+// ── Progress bar ──
+function updateVBar() {
+  const total = allRecords.length || 183;
+  const done  = allRecords.filter(r => r.kc_li_verified).length;
+  const pct   = total ? Math.round(done / total * 100) : 0;
+  const fill  = document.getElementById('v-fill');
+  const cnt   = document.getElementById('v-count');
+  if (fill) fill.style.width  = pct + '%';
+  if (cnt)  cnt.textContent   = `${done} / ${total} verified`;
+}
+
+// ── Unverified-only toggle ──
+function toggleUnverified() {
+  showUnverifiedOnly = !showUnverifiedOnly;
+  document.getElementById('btn-unverified').classList.toggle('on', showUnverifiedOnly);
+  applyFilters();
+}
+
+// ── Save to Supabase (PATCH edu_investors row directly) ──
+async function saveVerify(investorId, field, url, verified) {
+  const rec = allRecords.find(r => r.investor_id === investorId);
+  if (!rec) return;
+  const patch = {};
+  if (field === 'kc') {
+    patch.kc_li_verified = verified;
+    if (url !== null) patch.kc_li_url_corrected = url;
+  } else {
+    patch.c2_li_verified = verified;
+    if (url !== null) patch.c2_li_url_corrected = url;
+  }
+  try {
+    await sbFetch(`${TABLE}?id=eq.${rec.id}`, { method:'PATCH', body:JSON.stringify(patch) });
+    Object.assign(rec, patch);
+    showToast('✓ Verified & saved', 'ok');
+  } catch(e) { showToast('Save failed: ' + e.message, 'err'); }
+  updateVBar();
+  applyFilters();
+}
+
+// ── Build queue of unverified records ──
+function buildQueue() {
+  aiQueue = allRecords.filter(r => !r.kc_li_verified);
+  aiQIdx  = 0;
+}
+
+// ══════════════════════════════
+//  VERIFY MODAL (Google Search)
+// ══════════════════════════════
+function openAI(investorId, field) {
+  // "Verify Next" button — find first unverified
+  if (!investorId) {
+    buildQueue();
+    if (!aiQueue.length) { showToast('All records verified! 🎉', 'ok'); return; }
+    investorId = aiQueue[aiQIdx].investor_id;
+    field = 'kc';
+  }
+  const rec = allRecords.find(r => r.investor_id === investorId);
+  if (!rec) return;
+  aiRec = { record: rec, field: field || 'kc' };
+
+  const isKC  = aiRec.field === 'kc';
+  const name  = isKC ? rec.key_contact_name  : rec.contact2_name;
+  const title = isKC ? rec.key_contact_title : rec.contact2_title;
+  const existing = isKC ? rec.key_contact_linkedin : rec.contact2_linkedin;
+
+  // Build LinkedIn people search URL
+  const q = encodeURIComponent(`${name} ${rec.investor_name}`);
+  const googleURL = `https://www.linkedin.com/search/results/people/?keywords=${q}`;
+
+  document.getElementById('ai-sub').textContent =
+    `${name}  ·  ${title}  ·  ${rec.investor_name}  ·  ${rec.headquarters_city}, ${rec.headquarters_country}`;
+  document.getElementById('google-link').href = googleURL;
+
+  // Pre-fill input with existing URL if present
+  const input = document.getElementById('ai-manual-input');
+  input.value = existing || '';
+  checkURL();
+
+  document.getElementById('ai-modal').classList.add('open');
+  input.focus();
+}
+
+function markSearched() {
+  // User clicked Google search — just highlight the input field
+  setTimeout(() => document.getElementById('ai-manual-input').focus(), 300);
+}
+
+function checkURL() {
+  const val = document.getElementById('ai-manual-input').value.trim();
+  const valid = val.length > 10 && val.includes('linkedin');
+  const btn   = document.getElementById('save-btn');
+  const hint  = document.getElementById('url-hint');
+  btn.disabled  = !valid;
+  btn.style.opacity = valid ? '1' : '0.45';
+  hint.style.display = valid ? 'block' : 'none';
+}
+
+async function saveManual() {
+  const url = document.getElementById('ai-manual-input').value.trim();
+  if (!url || !url.includes('linkedin')) { showToast('Enter a valid LinkedIn URL', 'err'); return; }
+  if (!aiRec) return;
+  await saveVerify(aiRec.record.investor_id, aiRec.field, url, true);
+  closeAI();
+  advanceQueue();
+}
+
+async function markNone() {
+  if (!aiRec) return;
+  await saveVerify(aiRec.record.investor_id, aiRec.field, null, true);
+  closeAI();
+  advanceQueue();
+}
+
+function skipRecord() { closeAI(); advanceQueue(); }
+
+function advanceQueue() {
+  aiQIdx++;
+  if (aiQIdx < aiQueue.length) {
+    setTimeout(() => openAI(aiQueue[aiQIdx].investor_id, 'kc'), 300);
+  }
+}
+
+function closeAI() {
+  document.getElementById('ai-modal').classList.remove('open');
+  aiRec = null;
+}
+
+document.getElementById('ai-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('ai-modal')) closeAI();
+});
+
+
 
 // ── Verification badge renderer ──
 function liBadge(r, field) {
@@ -1097,130 +1250,8 @@ async function saveVerify(investorId, field, url, verified) {
   applyFilters();
 }
 
-// ── Build queue of unverified records ──
-function buildQueue() {
-  aiQueue = allRecords.filter(r => !r.kc_li_verified);
-  aiQIdx  = 0;
-}
 
-// ══════════════════
-//  AI MODAL
-// ══════════════════
-function openAI(investorId, field) {
-  if (!investorId) {           // "AI Verify Next" button
-    buildQueue();
-    if (!aiQueue.length) { showToast('All records verified!', 'ok'); return; }
-    investorId = aiQueue[aiQIdx].investor_id;
-    field = 'kc';
-  }
-  const rec = allRecords.find(r => r.investor_id === investorId);
-  if (!rec) return;
-  aiRec = { record: rec, field: field || 'kc' };
-  aiURL = '';
-  const isKC = aiRec.field === 'kc';
-  const name  = isKC ? rec.key_contact_name  : rec.contact2_name;
-  const title = isKC ? rec.key_contact_title : rec.contact2_title;
-  document.getElementById('ai-sub').textContent =
-    `${name}  ·  ${title}  ·  ${rec.investor_name}  ·  ${rec.headquarters_city}, ${rec.headquarters_country}`;
-  document.getElementById('ai-result').innerHTML =
-    '<div class="ai-spin"><div class="sp"></div><div>Claude is finding the correct profile…</div></div>';
-  document.getElementById('ai-btns-main').style.display   = 'none';
-  document.getElementById('ai-btns-manual').style.display = 'none';
-  document.getElementById('ai-manual-wrap').style.display = 'none';
-  document.getElementById('ai-modal').classList.add('open');
-  const existing = isKC ? rec.key_contact_linkedin : rec.contact2_linkedin;
-  runClaudeSearch(name, title, rec.investor_name, rec.headquarters_city + ', ' + rec.headquarters_country, existing);
-}
 
-async function runClaudeSearch(name, title, company, location, existingURL) {
-  const prompt = `You are verifying a LinkedIn profile for a professional contact database.
-
-Person: ${name}
-Title: ${title}
-Company: ${company}
-Location: ${location}
-Current URL in database: ${existingURL || 'none'}
-
-The current URL may be WRONG — it may belong to a completely different person who happens to have the same name.
-
-Based on your knowledge, what is the correct LinkedIn profile URL for this specific person at this specific company?
-
-Respond ONLY with a valid JSON object, no markdown, no explanation outside the JSON:
-{"url":"https://www.linkedin.com/in/CORRECT-SLUG","confidence":"HIGH","reason":"Why this is correct"}
-
-confidence must be HIGH, MEDIUM, or LOW.
-If you are not sure, still give your best guess with LOW confidence.`;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        messages: [{ role:'user', content: prompt }]
-      })
-    });
-    const data  = await resp.json();
-    const text  = (data.content || []).map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(text);
-    aiURL = parsed.url || '';
-    const cc = parsed.confidence === 'HIGH' ? 'conf-H' : parsed.confidence === 'MEDIUM' ? 'conf-M' : 'conf-L';
-    document.getElementById('ai-result').innerHTML =
-      `<span class="ai-conf ${cc}">${parsed.confidence} CONFIDENCE</span>
-       <div class="ai-url">${parsed.url || '—'}</div>
-       <div class="ai-reason">${parsed.reason || ''}</div>`;
-    const acceptBtn = document.getElementById('ai-accept-btn');
-    acceptBtn.textContent = '✓ Accept' + (parsed.url ? ': ' + parsed.url.replace('https://www.linkedin.com/in/','in/') : '');
-    document.getElementById('ai-btns-main').style.display = 'flex';
-  } catch(e) {
-    document.getElementById('ai-result').innerHTML =
-      `<div style="color:var(--text3);font-size:12px">AI search failed — use Manual override.</div>`;
-    document.getElementById('ai-btns-main').style.display = 'flex';
-    document.getElementById('ai-accept-btn').style.display = 'none';
-  }
-}
-
-async function acceptSuggestion() {
-  if (!aiRec || !aiURL) return;
-  await saveVerify(aiRec.record.investor_id, aiRec.field, aiURL, true);
-  closeAI(); advanceQueue();
-}
-async function markNone() {
-  if (!aiRec) return;
-  await saveVerify(aiRec.record.investor_id, aiRec.field, null, true);
-  closeAI(); advanceQueue();
-}
-function skipRecord() { closeAI(); advanceQueue(); }
-function advanceQueue() {
-  aiQIdx++;
-  if (aiQIdx < aiQueue.length) setTimeout(() => openAI(aiQueue[aiQIdx].investor_id, 'kc'), 350);
-}
-function showManual() {
-  const cur = aiRec?.field === 'kc' ? aiRec.record.key_contact_linkedin : aiRec.record.contact2_linkedin;
-  document.getElementById('ai-manual-input').value = aiURL || cur || '';
-  document.getElementById('ai-manual-wrap').style.display  = 'block';
-  document.getElementById('ai-btns-main').style.display    = 'none';
-  document.getElementById('ai-btns-manual').style.display  = 'flex';
-  document.getElementById('ai-manual-input').focus();
-}
-function hideManual() {
-  document.getElementById('ai-manual-wrap').style.display  = 'none';
-  document.getElementById('ai-btns-main').style.display    = 'flex';
-  document.getElementById('ai-btns-manual').style.display  = 'none';
-}
-async function saveManual() {
-  const url = document.getElementById('ai-manual-input').value.trim();
-  if (!url || !url.includes('linkedin')) { showToast('Enter a valid LinkedIn URL','err'); return; }
-  if (!aiRec) return;
-  await saveVerify(aiRec.record.investor_id, aiRec.field, url, true);
-  closeAI();
-}
-function closeAI() {
-  document.getElementById('ai-modal').classList.remove('open');
-  aiRec = null; aiURL = '';
-}
-document.getElementById('ai-modal').addEventListener('click', e => { if(e.target===document.getElementById('ai-modal')) closeAI(); });
 
 
 window.addEventListener('resize',()=>{if(window.innerWidth>640)document.getElementById('filter-drawer').classList.add('open');});
