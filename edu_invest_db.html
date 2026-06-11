@@ -1046,14 +1046,14 @@ function liBadge(r, field) {
   const done   = isKC ? r.kc_li_verified         : r.c2_li_verified;
   const name   = isKC ? r.key_contact_name       : r.contact2_name;
   if (!name) return '';
-  const finalURL = corURL || rawURL;
+  const finalURL = corURL || rawURL;  // always prefer corrected URL
   const id = r.investor_id, f = field;
   if (done) {
     const link = finalURL ? `<a href="${finalURL}" target="_blank" class="li-btn">in LinkedIn</a>` : '';
     return link + `<span class="li-verified v-ok" title="Verified ✓">✓</span>`;
   }
-  if (rawURL) {
-    return `<a href="${rawURL}" target="_blank" class="li-btn">in LinkedIn</a>`
+  if (finalURL) {
+    return `<a href="${finalURL}" target="_blank" class="li-btn">in LinkedIn</a>`
          + `<span class="li-verified v-no" title="Unverified — click to verify" onclick="openAI('${id}','${f}')">⚠</span>`;
   }
   return `<span class="li-verified v-find" onclick="openAI('${id}','${f}')">+ Find</span>`;
@@ -1084,10 +1084,16 @@ async function saveVerify(investorId, field, url, verified) {
   const patch = {};
   if (field === 'kc') {
     patch.kc_li_verified = verified;
-    if (url !== null) patch.kc_li_url_corrected = url;
+    if (url !== null) {
+      patch.kc_li_url_corrected = url;
+      patch.key_contact_linkedin = url; // overwrite original field directly
+    }
   } else {
     patch.c2_li_verified = verified;
-    if (url !== null) patch.c2_li_url_corrected = url;
+    if (url !== null) {
+      patch.c2_li_url_corrected = url;
+      patch.contact2_linkedin = url; // overwrite original field directly
+    }
   }
   try {
     await sbFetch(`${TABLE}?id=eq.${rec.id}`, { method:'PATCH', body:JSON.stringify(patch) });
@@ -1122,7 +1128,7 @@ function openAI(investorId, field) {
   const isKC  = aiRec.field === 'kc';
   const name  = isKC ? rec.key_contact_name  : rec.contact2_name;
   const title = isKC ? rec.key_contact_title : rec.contact2_title;
-  const existing = isKC ? rec.key_contact_linkedin : rec.contact2_linkedin;
+  const existing = isKC ? (rec.kc_li_url_corrected || rec.key_contact_linkedin) : (rec.c2_li_url_corrected || rec.contact2_linkedin);
 
   // Build LinkedIn people search URL
   const q = encodeURIComponent(`${name} ${rec.investor_name}`);
@@ -1191,26 +1197,6 @@ document.getElementById('ai-modal').addEventListener('click', e => {
 });
 
 
-
-// ── Verification badge renderer ──
-function liBadge(r, field) {
-  const isKC  = field === 'kc';
-  const rawURL= isKC ? r.key_contact_linkedin   : r.contact2_linkedin;
-  const corURL= isKC ? r.kc_li_url_corrected     : r.c2_li_url_corrected;
-  const verified = isKC ? r.kc_li_verified        : r.c2_li_verified;
-  const name  = isKC ? r.key_contact_name        : r.contact2_name;
-  if (!name) return '';
-  const finalURL = corURL || rawURL;
-  if (verified) {
-    const link = finalURL ? `<a href="${finalURL}" target="_blank" class="li-btn">in LinkedIn</a>` : '';
-    return link + `<span class="li-verified v-ok" title="Verified ✓">✓</span>`;
-  }
-  if (rawURL) {
-    return `<a href="${rawURL}" target="_blank" class="li-btn">in LinkedIn</a>`
-         + `<span class="li-verified v-no" title="Not verified — click to verify" onclick="openAI('${r.investor_id}','${field}')">⚠</span>`;
-  }
-  return `<span class="li-verified v-find" onclick="openAI('${r.investor_id}','${field}')">+ Find</span>`;
-}
 
 // ── Progress bar ──
 function updateVBar() {
