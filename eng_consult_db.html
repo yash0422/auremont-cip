@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Consultant Intelligence — Auremont Capital</title>
+
+<!--
+========================================================
+SUPABASE SCHEMA — Run this SQL in your Supabase SQL Editor
+========================================================
+
+-- TABLE 1: Engineering Firms
+CREATE TABLE eng_firms (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  firm_name TEXT NOT NULL,
+  company_type TEXT DEFAULT 'Engineering Consultant',
+  website TEXT,
+  landline TEXT,
+  address TEXT,
+  email TEXT,
+  linkedin TEXT,
+  relationship_status TEXT DEFAULT 'New',
+  last_contact_date DATE,
+  next_action TEXT,
+  due_date DATE,
+  notes TEXT,
+  bnc_profile_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- TABLE 2: Engineering Contacts (linked to firms)
+CREATE TABLE eng_contacts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  firm_id UUID REFERENCES eng_firms(id) ON DELETE CASCADE,
+  contact_name TEXT NOT NULL,
+  designation TEXT,
+  contact_type TEXT DEFAULT 'Project',
+  mobile TEXT,
+  email TEXT,
+  linkedin TEXT,
+  last_contact_date DATE,
+  next_action TEXT,
+  due_date DATE,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security (RLS) — optional but recommended
+ALTER TABLE eng_firms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE eng_contacts ENABLE ROW LEVEL SECURITY;
+
+-- Allow all operations for authenticated users (adjust as needed)
+CREATE POLICY "Allow all" ON eng_firms FOR ALL USING (true);
+CREATE POLICY "Allow all" ON eng_contacts FOR ALL USING (true);
+
+========================================================
+DEPLOYMENT
+========================================================
+1. Create a Supabase project at https://supabase.com
+2. Run the SQL above in the SQL Editor
+3. Get your Project URL and anon key from Project Settings > API
+4. Replace SUPABASE_URL and SUPABASE_ANON_KEY below
+5. Push this file to: https://github.com/yash0422/auremont-cip
+6. Access at: https://yash0422.github.io/auremont-cip/eng_consult_db.html
+========================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ── TOKENS ─────────────────────────────────────────── */
+  :root {
+    --bg:        #223140;
+    --surface:   #26334a;
+    --border:    #415069;
+    --accent:    #1f4e9c;
+    --accent-hover: #2a63c4;
+    --accent-link:  #5b8dee;
+    --input-bg:  #1a2535;
+    --row-hover: #2d3f58;
+    --text-primary:   #c5cbd4;
+    --text-secondary: #6e7f96;
+    --text-muted:     #4a5568;
+
+    /* Status pills */
+    --s-new-bg:      #2d3f58; --s-new-tx:      #94a3b8;
+    --s-contacted-bg:#1e3a5f; --s-contacted-tx:#93c5fd;
+    --s-meeting-bg:  #3d2e0a; --s-meeting-tx:  #fbbf24;
+    --s-active-bg:   #0f3020; --s-active-tx:   #34d399;
+    --s-dormant-bg:  #3d1515; --s-dormant-tx:  #f87171;
+
+    /* Contact type pills */
+    --ct-project-bg:    #1a3040; --ct-project-tx:    #7dd3fc;
+    --ct-commercial-bg: #1e2a40; --ct-commercial-tx: #a78bfa;
+    --ct-leadership-bg: #2a2010; --ct-leadership-tx: #fcd34d;
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow:    0 2px 12px rgba(0,0,0,0.35);
+    --transition: 0.18s ease;
+  }
+
+  /* ── RESET ──────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  a { color: var(--accent-link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+  input, select, textarea { font-family: inherit; font-size: 0.9rem; }
+
+  /* ── LAYOUT ─────────────────────────────────────────── */
+  .app-header {
+    background: var(--input-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-link);
+  }
+  .header-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* ── TOOLBAR ────────────────────────────────────────── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .toolbar-left { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
+  .toolbar-right { display: flex; gap: 10px; }
+
+  .search-box {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    color: var(--text-primary);
+    width: 240px;
+    transition: border-color var(--transition);
+  }
+  .search-box:focus { outline: none; border-color: var(--accent-link); }
+  .search-box::placeholder { color: var(--text-muted); }
+
+  .filter-select {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+  .filter-select:focus { outline: none; border-color: var(--accent-link); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background var(--transition);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--row-hover); color: var(--text-primary); }
+  .btn-danger {
+    background: #3d1515;
+    color: #f87171;
+    border: 1px solid #5a2020;
+  }
+  .btn-danger:hover { background: #5a1515; }
+  .btn-sm { padding: 4px 10px; font-size: 0.78rem; }
+  .btn-icon { padding: 6px 8px; }
+
+  /* ── STATS BAR ──────────────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 18px;
+    min-width: 130px;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .stat-value.accent { color: var(--accent-link); }
+
+  /* ── TABLE ──────────────────────────────────────────── */
+  .table-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+  }
+  thead th {
+    background: var(--input-bg);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: var(--text-primary); }
+  thead th .sort-icon { margin-left: 4px; opacity: 0.4; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--accent-link); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition);
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr.expanded { background: var(--row-hover); }
+
+  td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+  }
+  td.muted { color: var(--text-secondary); font-size: 0.8rem; }
+
+  .expand-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+  }
+  .expand-btn:hover { background: var(--border); color: var(--text-primary); }
+
+  /* ── CONTACT SUBROW ─────────────────────────────────── */
+  .contact-subrow { display: none; }
+  .contact-subrow.open { display: table-row; }
+  .contact-subrow td {
+    background: var(--input-bg);
+    padding: 0;
+    border-bottom: 2px solid var(--accent);
+  }
+  .contact-panel {
+    padding: 14px 20px 14px 48px;
+  }
+  .contact-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .contact-panel-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .contact-cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .contact-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    min-width: 240px;
+    max-width: 300px;
+    flex: 1;
+    position: relative;
+  }
+  .contact-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .contact-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+  }
+  .contact-designation {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .contact-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .contact-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+  .contact-meta-row .icon { width: 14px; text-align: center; opacity: 0.6; }
+  .contact-meta-row a { color: var(--accent-link); font-size: 0.78rem; }
+  .contact-actions-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .contact-followup {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .contact-followup-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .contact-followup-val {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+  .empty-contacts {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* ── PILLS ──────────────────────────────────────────── */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill-new        { background: var(--s-new-bg);      color: var(--s-new-tx); }
+  .pill-contacted  { background: var(--s-contacted-bg); color: var(--s-contacted-tx); }
+  .pill-meeting    { background: var(--s-meeting-bg);   color: var(--s-meeting-tx); }
+  .pill-active     { background: var(--s-active-bg);    color: var(--s-active-tx); }
+  .pill-dormant    { background: var(--s-dormant-bg);   color: var(--s-dormant-tx); }
+
+  .pill-project    { background: var(--ct-project-bg);    color: var(--ct-project-tx); }
+  .pill-commercial { background: var(--ct-commercial-bg); color: var(--ct-commercial-tx); }
+  .pill-leadership { background: var(--ct-leadership-bg); color: var(--ct-leadership-tx); }
+
+  /* ── MODAL ──────────────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+  .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .modal-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+  }
+  .modal-close:hover { background: var(--row-hover); color: var(--text-primary); }
+  .modal-body { padding: 20px 22px; }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 22px 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── FORM ───────────────────────────────────────────── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid.single { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.span2 { grid-column: span 2; }
+  .form-label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .form-input, .form-select, .form-textarea {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    color: var(--text-primary);
+    width: 100%;
+    transition: border-color var(--transition);
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent-link);
+  }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-select option { background: var(--input-bg); }
+  .form-section-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 14px 0 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    grid-column: span 2;
+  }
+
+  /* ── EMPTY STATE ────────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+  .empty-state-icon { font-size: 2.5rem; margin-bottom: 14px; opacity: 0.3; }
+  .empty-state-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  .empty-state-sub { font-size: 0.85rem; }
+
+  /* ── TOAST ──────────────────────────────────────────── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.2s ease;
+    max-width: 300px;
+  }
+  .toast.success { border-left: 3px solid #34d399; }
+  .toast.error   { border-left: 3px solid #f87171; }
+  @keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+
+  /* ── LOADING ────────────────────────────────────────── */
+  .loading-row td {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent-link);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── CONFIG SCREEN ──────────────────────────────────── */
+  .config-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+  }
+  .config-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .config-icon { font-size: 2rem; margin-bottom: 16px; }
+  .config-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); }
+  .config-sub { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+  .config-fields { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-bottom: 20px; }
+
+  /* ── UTILITY ────────────────────────────────────────── */
+  .text-sm { font-size: 0.78rem; }
+  .text-muted { color: var(--text-muted); }
+  .fw-600 { font-weight: 600; }
+  .nowrap { white-space: nowrap; }
+  .flex-center { display: flex; align-items: center; gap: 6px; }
+  .count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    margin-left: 4px;
+  }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Engineering Consultant Intelligence
+  </div>
+  <div class="header-meta" id="headerMeta">Connecting…</div>
+</header>
+
+<!-- ── CONFIG SCREEN (shown when no credentials) ──────── -->
+<div class="main-container" id="configScreen" style="display:none;">
+  <div class="config-screen">
+    <div class="config-card">
+      <div class="config-icon">🔗</div>
+      <div class="config-title">Connect Supabase</div>
+      <div class="config-sub">Enter your Supabase project credentials to connect the database. These are saved in your browser only.</div>
+      <div class="config-fields">
+        <div class="form-group">
+          <label class="form-label">Supabase Project URL</label>
+          <input class="form-input" id="cfgUrl" placeholder="https://xxxx.supabase.co" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Anon Public Key</label>
+          <input class="form-input" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIs..." />
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="saveConfig()">Connect & Load Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ─────────────────────────────────────────── -->
+<div class="main-container" id="appScreen" style="display:none;">
+
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card">
+      <div class="stat-label">Total Firms</div>
+      <div class="stat-value accent" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active</div>
+      <div class="stat-value" id="statActive" style="color:#34d399;">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Meeting Set</div>
+      <div class="stat-value" id="statMeeting" style="color:#fbbf24;">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Contacted</div>
+      <div class="stat-value" id="statContacted" style="color:#93c5fd;">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Contacts</div>
+      <div class="stat-value" id="statContacts" style="color:#c5cbd4;">—</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <input class="search-box" id="searchBox" placeholder="Search firm name, city, notes…" oninput="renderTable()" />
+      <select class="filter-select" id="filterStatus" onchange="renderTable()">
+        <option value="">All Statuses</option>
+        <option>New</option>
+        <option>Contacted</option>
+        <option>Meeting Set</option>
+        <option>Active</option>
+        <option>Dormant</option>
+      </select>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-primary" onclick="openFirmModal()">+ Add Firm</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <div class="table-scroll">
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th style="width:32px;"></th>
+            <th onclick="sortBy('firm_name')">Firm Name <span class="sort-icon">↕</span></th>
+            <th>Landline</th>
+            <th>Email</th>
+            <th onclick="sortBy('relationship_status')">Status <span class="sort-icon">↕</span></th>
+            <th onclick="sortBy('last_contact_date')">Last Contact <span class="sort-icon">↕</span></th>
+            <th>Next Action</th>
+            <th onclick="sortBy('due_date')">Due Date <span class="sort-icon">↕</span></th>
+            <th style="width:90px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr class="loading-row">
+            <td colspan="9"><span class="spinner"></span>Loading firms…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FIRM MODAL ────────────────────────────────────────── -->
+<div class="modal-overlay" id="firmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="firmModalTitle">Add Firm</div>
+        <div class="modal-subtitle">Engineering Consultant profile</div>
+      </div>
+      <button class="modal-close" onclick="closeFirmModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="firmId" />
+      <div class="form-grid">
+        <div class="form-section-title">Firm Details</div>
+        <div class="form-group">
+          <label class="form-label">Firm Name *</label>
+          <input class="form-input" id="fFirmName" placeholder="Ridge Engineering Consultants" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Type</label>
+          <input class="form-input" id="fCompanyType" value="Engineering Consultant" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Website</label>
+          <input class="form-input" id="fWebsite" placeholder="https://ridgeconsult.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Landline</label>
+          <input class="form-input" id="fLandline" placeholder="+971-4-2550804" />
+        </div>
+        <div class="form-group span2">
+          <label class="form-label">Address</label>
+          <input class="form-input" id="fAddress" placeholder="City 4 Buildings, Offices 407 & 408, Dubai" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="fEmail" placeholder="info@ridgeconsult.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">LinkedIn</label>
+          <input class="form-input" id="fLinkedin" placeholder="https://linkedin.com/company/…" />
+        </div>
+
+        <div class="form-section-title">Relationship</div>
+        <div class="form-group">
+          <label class="form-label">Relationship Status</label>
+          <select class="form-select" id="fRelStatus">
+            <option>New</option>
+            <option>Contacted</option>
+            <option>Meeting Set</option>
+            <option>Active</option>
+            <option>Dormant</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Contact Date</label>
+          <input type="date" class="form-input" id="fLastContact" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Next Action</label>
+          <input class="form-input" id="fNextAction" placeholder="Send intro email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="form-input" id="fDueDate" />
+        </div>
+        <div class="form-group span2">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="fNotes" placeholder="Key intel, conversations, deal context, MMJS opportunity…"></textarea>
+        </div>
+        <div class="form-group span2">
+          <label class="form-label">BNC Profile URL</label>
+          <input class="form-input" id="fBncUrl" placeholder="https://bnc.ae/company/…" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeFirmModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFirm()">Save Firm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTACT MODAL ─────────────────────────────────────── -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="contactModalTitle">Add Contact</div>
+        <div class="modal-subtitle" id="contactModalFirmName">—</div>
+      </div>
+      <button class="modal-close" onclick="closeContactModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="contactId" />
+      <input type="hidden" id="contactFirmId" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Contact Name *</label>
+          <input class="form-input" id="cName" placeholder="Osama Saad" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Designation</label>
+          <input class="form-input" id="cDesignation" placeholder="Project Manager" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Type</label>
+          <select class="form-select" id="cType">
+            <option value="Project">Project</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Leadership">Leadership</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input class="form-input" id="cMobile" placeholder="+971-50-1234567" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="cEmail" placeholder="osama@ridgeconsult.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">LinkedIn</label>
+          <input class="form-input" id="cLinkedin" placeholder="https://linkedin.com/in/…" />
+        </div>
+
+        <div class="form-section-title">Follow-up</div>
+        <div class="form-group">
+          <label class="form-label">Last Contact Date</label>
+          <input type="date" class="form-input" id="cLastContact" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="form-input" id="cDueDate" />
+        </div>
+        <div class="form-group span2">
+          <label class="form-label">Next Action</label>
+          <input class="form-input" id="cNextAction" placeholder="Call to introduce Auremont / MMJS services" />
+        </div>
+        <div class="form-group span2">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="cNotes" placeholder="Conversation notes, interest signals…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeContactModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST CONTAINER ───────────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── SCRIPT ────────────────────────────────────────────── -->
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIGURATION — Replace with your Supabase credentials
+// or leave blank to be prompted on first load
+// ═══════════════════════════════════════════════════════════
+const SUPABASE_URL_DEFAULT  = 'https://nxqdkiggnflajyzmrsbj.supabase.co';
+const SUPABASE_KEY_DEFAULT  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54cWRraWdnbmZsYWp5em1yc2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTA3OTQsImV4cCI6MjA5NjM4Njc5NH0.9lBOvvFMU0CXm1MQbiGW7aSge56uVlEbJ12SDr5EN3M';
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let SUPA_URL = '';
+let SUPA_KEY = '';
+let firms    = [];
+let contacts = [];
+let sortCol  = 'firm_name';
+let sortAsc  = true;
+let expandedFirmId = null;
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  SUPA_URL = localStorage.getItem('eng_supa_url') || SUPABASE_URL_DEFAULT;
+  SUPA_KEY = localStorage.getItem('eng_supa_key') || SUPABASE_KEY_DEFAULT;
+
+  if (!SUPA_URL || !SUPA_KEY) {
+    document.getElementById('configScreen').style.display = 'block';
+  } else {
+    document.getElementById('appScreen').style.display = 'block';
+    loadAll();
+  }
+});
+
+function saveConfig() {
+  const url = document.getElementById('cfgUrl').value.trim();
+  const key = document.getElementById('cfgKey').value.trim();
+  if (!url || !key) { toast('Enter both URL and key', 'error'); return; }
+  localStorage.setItem('eng_supa_url', url);
+  localStorage.setItem('eng_supa_key', key);
+  SUPA_URL = url; SUPA_KEY = key;
+  document.getElementById('configScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  loadAll();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SUPABASE API
+// ═══════════════════════════════════════════════════════════
+async function supa(table, method='GET', body=null, id=null) {
+  const url = `${SUPA_URL}/rest/v1/${table}${id ? `?id=eq.${id}` : ''}`;
+  const headers = {
+    'Content-Type':  'application/json',
+    'apikey':        SUPA_KEY,
+    'Authorization': `Bearer ${SUPA_KEY}`,
+    'Prefer':        method === 'POST' ? 'return=representation' : 'return=representation'
+  };
+  if (method === 'GET') headers['Accept'] = 'application/json';
+
+  const res = await fetch(
+    method === 'GET' ? `${SUPA_URL}/rest/v1/${table}?order=created_at.desc&select=*` : url,
+    { method, headers, body: body ? JSON.stringify(body) : null }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function supaQuery(table, params='') {
+  const url = `${SUPA_URL}/rest/v1/${table}?${params}&select=*`;
+  const res = await fetch(url, {
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Accept': 'application/json'
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function supaUpsert(table, body, id=null) {
+  if (id) {
+    const url = `${SUPA_URL}/rest/v1/${table}?id=eq.${id}`;
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } else {
+    const url = `${SUPA_URL}/rest/v1/${table}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+}
+
+async function supaDelete(table, id) {
+  const url = `${SUPA_URL}/rest/v1/${table}?id=eq.${id}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════════════════════════
+async function loadAll() {
+  document.getElementById('headerMeta').textContent = 'Loading…';
+  try {
+    [firms, contacts] = await Promise.all([
+      supaQuery('eng_firms', 'order=firm_name.asc'),
+      supaQuery('eng_contacts', 'order=contact_name.asc')
+    ]);
+    updateStats();
+    renderTable();
+    document.getElementById('headerMeta').textContent =
+      `${firms.length} firms · ${contacts.length} contacts · ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'})}`;
+  } catch(e) {
+    document.getElementById('headerMeta').textContent = 'Connection error';
+    toast('Failed to load data: ' + e.message, 'error');
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--s-dormant-tx);">
+      ⚠ Could not connect to Supabase. <button class="btn btn-ghost btn-sm" onclick="resetConfig()">Reconnect</button>
+    </td></tr>`;
+  }
+}
+
+function resetConfig() {
+  localStorage.removeItem('eng_supa_url');
+  localStorage.removeItem('eng_supa_key');
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  document.getElementById('statTotal').textContent     = firms.length;
+  document.getElementById('statActive').textContent    = firms.filter(f => f.relationship_status === 'Active').length;
+  document.getElementById('statMeeting').textContent   = firms.filter(f => f.relationship_status === 'Meeting Set').length;
+  document.getElementById('statContacted').textContent = firms.filter(f => f.relationship_status === 'Contacted').length;
+  document.getElementById('statContacts').textContent  = contacts.length;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABLE RENDER
+// ═══════════════════════════════════════════════════════════
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = true; }
+  renderTable();
+}
+
+function getFiltered() {
+  const q      = document.getElementById('searchBox').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  return firms.filter(f => {
+    const matchQ = !q ||
+      (f.firm_name||'').toLowerCase().includes(q) ||
+      (f.address||'').toLowerCase().includes(q) ||
+      (f.notes||'').toLowerCase().includes(q) ||
+      (f.email||'').toLowerCase().includes(q);
+    const matchS = !status || f.relationship_status === status;
+    return matchQ && matchS;
+  }).sort((a, b) => {
+    const va = (a[sortCol]||'').toString().toLowerCase();
+    const vb = (b[sortCol]||'').toString().toLowerCase();
+    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+function renderTable() {
+  const tbody   = document.getElementById('tableBody');
+  const filtered = getFiltered();
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9">
+      <div class="empty-state">
+        <div class="empty-state-icon">🏗</div>
+        <div class="empty-state-title">No firms found</div>
+        <div class="empty-state-sub">Add your first engineering consultant or adjust your filters.</div>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(f => {
+    const firmContacts = contacts.filter(c => c.firm_id === f.id);
+    const isExpanded   = expandedFirmId === f.id;
+
+    return `
+    <tr class="${isExpanded ? 'expanded' : ''}" data-fid="${f.id}">
+      <td>
+        <button class="expand-btn" onclick="toggleExpand('${f.id}')" title="${isExpanded ? 'Collapse' : 'Expand contacts'}">
+          ${isExpanded ? '▼' : '▶'}
+          ${firmContacts.length ? `<span class="count-badge">${firmContacts.length}</span>` : ''}
+        </button>
+      </td>
+      <td>
+        <div class="fw-600">${esc(f.firm_name)}</div>
+        <div class="text-sm text-muted">${esc(f.company_type||'')}</div>
+        ${f.website ? `<div class="text-sm"><a href="${esc(f.website)}" target="_blank">${esc(f.website.replace(/^https?:\/\//,''))}</a></div>` : ''}
+      </td>
+      <td class="nowrap">${esc(f.landline||'—')}</td>
+      <td>${f.email ? `<a href="mailto:${esc(f.email)}">${esc(f.email)}</a>` : '<span class="text-muted">—</span>'}</td>
+      <td>${statusPill(f.relationship_status)}</td>
+      <td class="nowrap muted">${fmtDate(f.last_contact_date)}</td>
+      <td class="text-sm">${esc(f.next_action||'—')}</td>
+      <td class="nowrap muted ${isDue(f.due_date) ? 'style="color:#f87171"' : ''}">${fmtDate(f.due_date)}</td>
+      <td>
+        <div class="flex-center">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="openFirmModal('${f.id}')" title="Edit">✏</button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteFirm('${f.id}')" title="Delete">🗑</button>
+        </div>
+      </td>
+    </tr>
+    <tr class="contact-subrow ${isExpanded ? 'open' : ''}" id="sub-${f.id}">
+      <td colspan="9">
+        <div class="contact-panel">
+          <div class="contact-panel-header">
+            <div class="contact-panel-title">Contacts — ${esc(f.firm_name)}</div>
+            <button class="btn btn-primary btn-sm" onclick="openContactModal(null,'${f.id}','${esc(f.firm_name)}')">+ Add Contact</button>
+          </div>
+          <div class="contact-cards">
+            ${firmContacts.length ? firmContacts.map(c => contactCard(c)).join('') : '<div class="empty-contacts">No contacts yet. Add the first contact for this firm.</div>'}
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function contactCard(c) {
+  return `
+  <div class="contact-card">
+    <div class="contact-card-top">
+      <div>
+        <div class="contact-name">${esc(c.contact_name)}</div>
+        <div class="contact-designation">${esc(c.designation||'')}</div>
+      </div>
+      ${contactTypePill(c.contact_type)}
+    </div>
+    <div class="contact-meta">
+      ${c.mobile    ? `<div class="contact-meta-row"><span class="icon">📱</span>${esc(c.mobile)}</div>` : ''}
+      ${c.email     ? `<div class="contact-meta-row"><span class="icon">✉</span><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></div>` : ''}
+      ${c.linkedin  ? `<div class="contact-meta-row"><span class="icon">🔗</span><a href="${esc(c.linkedin)}" target="_blank">LinkedIn</a></div>` : ''}
+    </div>
+    ${(c.last_contact_date || c.next_action || c.due_date) ? `
+    <div class="contact-followup">
+      ${c.last_contact_date ? `<div><span class="contact-followup-label">Last Contact </span><span class="contact-followup-val">${fmtDate(c.last_contact_date)}</span></div>` : ''}
+      ${c.next_action       ? `<div><span class="contact-followup-label">Next Action </span><span class="contact-followup-val">${esc(c.next_action)}</span></div>` : ''}
+      ${c.due_date          ? `<div><span class="contact-followup-label">Due </span><span class="contact-followup-val" style="${isDue(c.due_date)?'color:#f87171':''}">${fmtDate(c.due_date)}</span></div>` : ''}
+    </div>` : ''}
+    ${c.notes ? `<div class="text-sm" style="margin-top:8px;color:var(--text-secondary);border-top:1px solid var(--border);padding-top:8px;">${esc(c.notes)}</div>` : ''}
+    <div class="contact-actions-row">
+      <button class="btn btn-ghost btn-sm" onclick="openContactModal('${c.id}','${c.firm_id}','')">✏ Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteContact('${c.id}')">🗑 Remove</button>
+    </div>
+  </div>`;
+}
+
+function toggleExpand(firmId) {
+  expandedFirmId = expandedFirmId === firmId ? null : firmId;
+  renderTable();
+}
+
+// ═══════════════════════════════════════════════════════════
+// FIRM MODAL
+// ═══════════════════════════════════════════════════════════
+function openFirmModal(id=null) {
+  document.getElementById('firmModalTitle').textContent = id ? 'Edit Firm' : 'Add Firm';
+  const f = id ? firms.find(x => x.id === id) : null;
+  document.getElementById('firmId').value        = id || '';
+  document.getElementById('fFirmName').value     = f?.firm_name || '';
+  document.getElementById('fCompanyType').value  = f?.company_type || 'Engineering Consultant';
+  document.getElementById('fWebsite').value      = f?.website || '';
+  document.getElementById('fLandline').value     = f?.landline || '';
+  document.getElementById('fAddress').value      = f?.address || '';
+  document.getElementById('fEmail').value        = f?.email || '';
+  document.getElementById('fLinkedin').value     = f?.linkedin || '';
+  document.getElementById('fRelStatus').value    = f?.relationship_status || 'New';
+  document.getElementById('fLastContact').value  = f?.last_contact_date || '';
+  document.getElementById('fNextAction').value   = f?.next_action || '';
+  document.getElementById('fDueDate').value      = f?.due_date || '';
+  document.getElementById('fNotes').value        = f?.notes || '';
+  document.getElementById('fBncUrl').value       = f?.bnc_profile_url || '';
+  document.getElementById('firmModal').classList.add('open');
+}
+
+function closeFirmModal() {
+  document.getElementById('firmModal').classList.remove('open');
+}
+
+async function saveFirm() {
+  const name = document.getElementById('fFirmName').value.trim();
+  if (!name) { toast('Firm name is required', 'error'); return; }
+  const id = document.getElementById('firmId').value;
+
+  const payload = {
+    firm_name:           name,
+    company_type:        document.getElementById('fCompanyType').value.trim() || 'Engineering Consultant',
+    website:             document.getElementById('fWebsite').value.trim() || null,
+    landline:            document.getElementById('fLandline').value.trim() || null,
+    address:             document.getElementById('fAddress').value.trim() || null,
+    email:               document.getElementById('fEmail').value.trim() || null,
+    linkedin:            document.getElementById('fLinkedin').value.trim() || null,
+    relationship_status: document.getElementById('fRelStatus').value,
+    last_contact_date:   document.getElementById('fLastContact').value || null,
+    next_action:         document.getElementById('fNextAction').value.trim() || null,
+    due_date:            document.getElementById('fDueDate').value || null,
+    notes:               document.getElementById('fNotes').value.trim() || null,
+    bnc_profile_url:     document.getElementById('fBncUrl').value.trim() || null,
+    updated_at:          new Date().toISOString()
+  };
+
+  try {
+    await supaUpsert('eng_firms', payload, id || null);
+    toast(id ? 'Firm updated' : 'Firm added', 'success');
+    closeFirmModal();
+    await loadAll();
+    if (id) expandedFirmId = id;
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+async function deleteFirm(id) {
+  if (!confirm('Delete this firm and all its contacts?')) return;
+  try {
+    await supaDelete('eng_firms', id);
+    toast('Firm deleted', 'success');
+    if (expandedFirmId === id) expandedFirmId = null;
+    await loadAll();
+  } catch(e) {
+    toast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONTACT MODAL
+// ═══════════════════════════════════════════════════════════
+function openContactModal(contactId, firmId, firmName) {
+  const resolvedFirmName = firmName || firms.find(f => f.id === firmId)?.firm_name || '—';
+  document.getElementById('contactModalTitle').textContent   = contactId ? 'Edit Contact' : 'Add Contact';
+  document.getElementById('contactModalFirmName').textContent = resolvedFirmName;
+  document.getElementById('contactId').value   = contactId || '';
+  document.getElementById('contactFirmId').value = firmId;
+
+  const c = contactId ? contacts.find(x => x.id === contactId) : null;
+  document.getElementById('cName').value        = c?.contact_name || '';
+  document.getElementById('cDesignation').value = c?.designation || '';
+  document.getElementById('cType').value        = c?.contact_type || 'Project';
+  document.getElementById('cMobile').value      = c?.mobile || '';
+  document.getElementById('cEmail').value       = c?.email || '';
+  document.getElementById('cLinkedin').value    = c?.linkedin || '';
+  document.getElementById('cLastContact').value = c?.last_contact_date || '';
+  document.getElementById('cDueDate').value     = c?.due_date || '';
+  document.getElementById('cNextAction').value  = c?.next_action || '';
+  document.getElementById('cNotes').value       = c?.notes || '';
+  document.getElementById('contactModal').classList.add('open');
+}
+
+function closeContactModal() {
+  document.getElementById('contactModal').classList.remove('open');
+}
+
+async function saveContact() {
+  const name   = document.getElementById('cName').value.trim();
+  const firmId = document.getElementById('contactFirmId').value;
+  if (!name)   { toast('Contact name is required', 'error'); return; }
+  if (!firmId) { toast('No firm linked', 'error'); return; }
+  const id = document.getElementById('contactId').value;
+
+  const payload = {
+    firm_id:           firmId,
+    contact_name:      name,
+    designation:       document.getElementById('cDesignation').value.trim() || null,
+    contact_type:      document.getElementById('cType').value,
+    mobile:            document.getElementById('cMobile').value.trim() || null,
+    email:             document.getElementById('cEmail').value.trim() || null,
+    linkedin:          document.getElementById('cLinkedin').value.trim() || null,
+    last_contact_date: document.getElementById('cLastContact').value || null,
+    due_date:          document.getElementById('cDueDate').value || null,
+    next_action:       document.getElementById('cNextAction').value.trim() || null,
+    notes:             document.getElementById('cNotes').value.trim() || null,
+    updated_at:        new Date().toISOString()
+  };
+
+  try {
+    await supaUpsert('eng_contacts', payload, id || null);
+    toast(id ? 'Contact updated' : 'Contact added', 'success');
+    closeContactModal();
+    expandedFirmId = firmId;
+    await loadAll();
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+async function deleteContact(id) {
+  if (!confirm('Remove this contact?')) return;
+  const c = contacts.find(x => x.id === id);
+  try {
+    await supaDelete('eng_contacts', id);
+    toast('Contact removed', 'success');
+    if (c) expandedFirmId = c.firm_id;
+    await loadAll();
+  } catch(e) {
+    toast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════
+function exportCSV() {
+  const filtered = getFiltered();
+  const headers  = ['Firm Name','Company Type','Website','Landline','Address','Email','LinkedIn',
+                    'Relationship Status','Last Contact','Next Action','Due Date','Notes','BNC Profile URL'];
+  const rows = filtered.map(f => [
+    f.firm_name, f.company_type, f.website, f.landline, f.address, f.email, f.linkedin,
+    f.relationship_status, f.last_contact_date, f.next_action, f.due_date, f.notes, f.bnc_profile_url
+  ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`));
+
+  const csv  = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `eng_consult_db_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported', 'success');
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function statusPill(s) {
+  const map = {
+    'New':         'new',
+    'Contacted':   'contacted',
+    'Meeting Set': 'meeting',
+    'Active':      'active',
+    'Dormant':     'dormant'
+  };
+  return `<span class="pill pill-${map[s]||'new'}">${s||'New'}</span>`;
+}
+
+function contactTypePill(t) {
+  const map = { 'Project': 'project', 'Commercial': 'commercial', 'Leadership': 'leadership' };
+  return `<span class="pill pill-${map[t]||'project'}">${t||'Project'}</span>`;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function isDue(d) {
+  if (!d) return false;
+  return new Date(d) < new Date();
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function toast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type === 'success' ? '✓ ' : '⚠ ') + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// Close modals on overlay click
+document.getElementById('firmModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('firmModal')) closeFirmModal();
+});
+document.getElementById('contactModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('contactModal')) closeContactModal();
+});
+</script>
+</body>
+</html>
