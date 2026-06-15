@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vishal Desai — Asset Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: #7A5E20;
+  --ink: #0A0C0F; --ink-2: #141720; --ink-3: #1C2030;
+  --slate: #3A4155; --mist: #8B95A8; --fog: #C8CDD8; --white: #F4F2EE;
+  --green: #27AE60; --amber: #E67E22; --red: #C0392B; --blue: #2980B9;
+  --r: 3px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;line-height:1.5;min-height:100vh;}
+
+/* HEADER */
+.header{background:linear-gradient(160deg,#0A0C0F 0%,#141720 70%,#0F1118 100%);border-bottom:1px solid rgba(201,168,76,0.18);padding:28px 32px 22px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 100% at 90% 50%,rgba(201,168,76,0.05) 0%,transparent 70%);pointer-events:none;}
+.header-inner{position:relative;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.header-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:3.5px;color:var(--gold-dim);text-transform:uppercase;margin-bottom:6px;}
+.header-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--white);line-height:1.1;}
+.header-title em{color:var(--gold-light);font-style:italic;}
+.header-sub{font-size:12px;color:var(--mist);margin-top:6px;font-weight:300;}
+.header-stats{display:flex;gap:24px;flex-wrap:wrap;}
+.hstat{text-align:right;}
+.hstat-val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--gold);line-height:1;}
+.hstat-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-top:2px;}
+
+/* TOOLBAR */
+.toolbar{background:var(--ink-2);border-bottom:1px solid rgba(201,168,76,0.1);padding:12px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.filter-group{display:flex;gap:6px;flex-wrap:wrap;}
+.filter-btn{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(201,168,76,0.2);background:transparent;color:var(--mist);cursor:pointer;border-radius:var(--r);transition:all 0.15s;}
+.filter-btn:hover{border-color:var(--gold);color:var(--gold);}
+.filter-btn.active{background:rgba(201,168,76,0.12);border-color:var(--gold);color:var(--gold);}
+.toolbar-sep{width:1px;height:24px;background:rgba(201,168,76,0.15);}
+.search-wrap{position:relative;}
+.search-input{background:var(--ink-3);border:1px solid rgba(201,168,76,0.15);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;padding:6px 12px 6px 30px;border-radius:var(--r);outline:none;width:200px;}
+.search-input:focus{border-color:rgba(201,168,76,0.4);}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--mist);font-size:11px;pointer-events:none;}
+.add-btn{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:7px 18px;border:1px solid var(--gold);background:rgba(201,168,76,0.08);color:var(--gold);cursor:pointer;border-radius:var(--r);transition:all 0.15s;}
+.add-btn:hover{background:rgba(201,168,76,0.18);}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;padding:24px 32px;}
+table{width:100%;border-collapse:collapse;min-width:1300px;}
+thead tr{border-bottom:1px solid rgba(201,168,76,0.2);}
+thead th{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;padding:8px 10px;text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.1s;}
+tbody tr:hover{background:rgba(201,168,76,0.025);}
+tbody tr.hidden{display:none;}
+td{padding:11px 10px;vertical-align:top;}
+
+/* PRIORITY */
+.pri-badge{display:inline-flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;width:36px;height:22px;border-radius:var(--r);cursor:pointer;transition:opacity 0.15s;user-select:none;}
+.pri-1{background:rgba(192,57,43,0.15);color:#E74C3C;border:1px solid rgba(192,57,43,0.35);}
+.pri-2{background:rgba(230,126,34,0.12);color:var(--amber);border:1px solid rgba(230,126,34,0.3);}
+.pri-3{background:rgba(139,149,168,0.1);color:var(--mist);border:1px solid rgba(139,149,168,0.2);}
+.pri-badge:hover{opacity:0.75;}
+
+/* FILE NAME */
+.fname{font-weight:500;color:var(--white);font-size:12px;word-break:break-all;}
+.ftype-badge{display:inline-block;margin-top:4px;font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:9999px;}
+.ft-dashboard{background:rgba(41,128,185,0.15);color:#5DADE2;border:1px solid rgba(41,128,185,0.3);}
+.ft-pitch{background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.25);}
+.ft-database{background:rgba(39,174,96,0.1);color:#2ECC71;border:1px solid rgba(39,174,96,0.25);}
+.ft-tool{background:rgba(155,89,182,0.12);color:#BB8FCE;border:1px solid rgba(155,89,182,0.3);}
+.ft-corporate{background:rgba(139,149,168,0.1);color:var(--fog);border:1px solid rgba(139,149,168,0.2);}
+
+/* DESC */
+.desc{font-size:12px;color:var(--fog);font-weight:300;line-height:1.5;}
+
+/* REPO */
+.repo-chip{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:var(--r);}
+.repo-cip{background:rgba(41,128,185,0.1);color:#5DADE2;border:1px solid rgba(41,128,185,0.2);}
+.repo-html{background:rgba(155,89,182,0.1);color:#BB8FCE;border:1px solid rgba(155,89,182,0.2);}
+
+/* LINK */
+.live-link{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(39,174,96,0.3);background:rgba(39,174,96,0.07);color:#2ECC71;transition:all 0.15s;white-space:nowrap;}
+.live-link:hover{background:rgba(39,174,96,0.15);border-color:rgba(39,174,96,0.5);}
+.live-link.no-link{border-color:rgba(139,149,168,0.2);background:transparent;color:var(--mist);cursor:default;pointer-events:none;}
+
+/* TASKS */
+.task-cell{}
+.task-pending{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--fog);line-height:1.5;margin-bottom:3px;}
+.task-pending .tick-btn{background:none;border:1px solid rgba(201,168,76,0.25);color:var(--gold-dim);cursor:pointer;border-radius:2px;width:14px;height:14px;flex-shrink:0;margin-top:1px;font-size:8px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.task-pending .tick-btn:hover{background:rgba(39,174,96,0.15);border-color:var(--green);color:var(--green);}
+.task-done{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:3px;}
+.task-done .tick-btn{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);color:var(--green);cursor:pointer;border-radius:2px;width:14px;height:14px;flex-shrink:0;margin-top:1px;font-size:8px;display:flex;align-items:center;justify-content:center;}
+.task-done .task-text{text-decoration:line-through;color:var(--slate);}
+.task-expand-btn{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--gold-dim);background:none;border:none;cursor:pointer;padding:2px 0;margin-top:2px;text-transform:uppercase;display:block;}
+.task-expand-btn:hover{color:var(--gold);}
+.task-counts{font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--slate);letter-spacing:0.5px;margin-top:3px;}
+.task-counts span{margin-right:8px;}
+.task-counts .done-count{color:var(--green);opacity:0.7;}
+
+/* MINING */
+.mine-flag{display:flex;align-items:flex-start;gap:4px;font-size:11px;color:var(--amber);margin-bottom:3px;line-height:1.45;}
+.mine-flag::before{content:'⛏';font-size:10px;flex-shrink:0;margin-top:1px;}
+.no-mine{font-size:11px;color:var(--slate);font-style:italic;}
+
+/* DEALS */
+.deal-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.deal-tag{display:inline-block;font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:9999px;background:rgba(201,168,76,0.08);color:var(--gold-light);border:1px solid rgba(201,168,76,0.2);}
+
+/* STATUS */
+.status-select{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-radius:var(--r);border:1px solid;background:transparent;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%238B95A8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:20px;}
+.status-select option{background:#141720;color:#F4F2EE;font-size:12px;text-transform:none;letter-spacing:0;}
+.s-live{color:#2ECC71;border-color:rgba(39,174,96,0.35);background-color:rgba(39,174,96,0.06);}
+.s-indev{color:var(--amber);border-color:rgba(230,126,34,0.35);background-color:rgba(230,126,34,0.06);}
+.s-needsfix{color:#E74C3C;border-color:rgba(192,57,43,0.35);background-color:rgba(192,57,43,0.06);}
+.s-complete{color:var(--fog);border-color:rgba(200,205,216,0.25);background-color:rgba(200,205,216,0.04);}
+.s-parked{color:var(--slate);border-color:rgba(58,65,85,0.4);background-color:rgba(58,65,85,0.08);}
+
+/* NOTES inline edit */
+.notes-cell{min-width:140px;}
+.notes-display{font-size:11px;color:var(--fog);line-height:1.5;cursor:pointer;min-height:20px;padding:3px 5px;border-radius:var(--r);border:1px solid transparent;transition:border 0.15s;}
+.notes-display:hover{border-color:rgba(201,168,76,0.2);background:rgba(201,168,76,0.03);}
+.notes-display.empty{color:var(--slate);font-style:italic;}
+.notes-textarea{width:100%;min-height:60px;background:var(--ink-3);border:1px solid rgba(201,168,76,0.3);color:var(--white);font-family:'Barlow',sans-serif;font-size:11px;padding:5px 7px;border-radius:var(--r);outline:none;resize:vertical;display:none;}
+
+/* ROW ACTIONS */
+.row-actions{display:flex;gap:4px;margin-top:6px;}
+.act-btn{background:none;border:none;cursor:pointer;font-size:11px;padding:2px 5px;border-radius:2px;transition:all 0.15s;}
+.act-edit{color:var(--mist);border:1px solid rgba(139,149,168,0.2);}
+.act-edit:hover{color:var(--gold);border-color:rgba(201,168,76,0.3);}
+.act-del{color:var(--slate);border:1px solid rgba(58,65,85,0.3);}
+.act-del:hover{color:#E74C3C;border-color:rgba(192,57,43,0.3);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink-3);border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:var(--r);opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;z-index:9999;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,6,8,0.88);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--ink-2);border:1px solid rgba(201,168,76,0.25);border-radius:var(--r);width:100%;max-width:620px;max-height:92vh;overflow-y:auto;}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid rgba(201,168,76,0.12);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--ink-2);z-index:1;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--gold);}
+.modal-close{background:none;border:none;color:var(--mist);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.modal-close:hover{color:var(--white);}
+.modal-body{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
+.form-input,.form-select,.form-textarea{background:var(--ink-3);border:1px solid rgba(201,168,76,0.15);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;padding:8px 10px;border-radius:var(--r);outline:none;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:rgba(201,168,76,0.4);}
+.form-select option{background:#141720;}
+.form-textarea{resize:vertical;min-height:70px;}
+.form-hint{font-size:10px;color:var(--slate);}
+
+/* TASK MANAGER in modal */
+.task-manager{border:1px solid rgba(201,168,76,0.12);border-radius:var(--r);overflow:hidden;}
+.task-manager-list{max-height:200px;overflow-y:auto;}
+.tm-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);background:var(--ink-3);}
+.tm-item.done-item{opacity:0.55;}
+.tm-tick{width:16px;height:16px;border:1px solid rgba(201,168,76,0.3);border-radius:2px;cursor:pointer;background:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all 0.15s;}
+.tm-tick.ticked{background:rgba(39,174,96,0.15);border-color:var(--green);color:var(--green);}
+.tm-text{flex:1;font-size:12px;color:var(--fog);line-height:1.4;}
+.tm-text.struck{text-decoration:line-through;color:var(--slate);}
+.tm-del{background:none;border:none;color:var(--slate);cursor:pointer;font-size:12px;padding:2px 4px;flex-shrink:0;}
+.tm-del:hover{color:#E74C3C;}
+.task-add-row{display:flex;gap:6px;padding:8px 10px;background:var(--ink-2);border-top:1px solid rgba(201,168,76,0.1);}
+.task-add-input{flex:1;background:var(--ink-3);border:1px solid rgba(201,168,76,0.15);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;padding:6px 8px;border-radius:var(--r);outline:none;}
+.task-add-input:focus{border-color:rgba(201,168,76,0.35);}
+.task-add-btn{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 12px;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.08);color:var(--gold);cursor:pointer;border-radius:var(--r);}
+.task-add-btn:hover{background:rgba(201,168,76,0.18);}
+
+/* DEAL CHECKBOXES */
+.deal-checkboxes{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;padding:4px 0;}
+.deal-check-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--fog);cursor:pointer;}
+.deal-check-item input{accent-color:var(--gold);width:13px;height:13px;}
+.deal-custom-input{background:var(--ink-3);border:1px solid rgba(201,168,76,0.15);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;padding:6px 10px;border-radius:var(--r);outline:none;width:100%;margin-top:6px;}
+.deal-custom-input:focus{border-color:rgba(201,168,76,0.4);}
+
+.modal-footer{padding:14px 24px 20px;border-top:1px solid rgba(201,168,76,0.1);display:flex;gap:10px;justify-content:flex-end;}
+.btn-cancel{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:1px solid rgba(139,149,168,0.3);background:transparent;color:var(--mist);cursor:pointer;border-radius:var(--r);}
+.btn-save{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 22px;border:1px solid var(--gold);background:rgba(201,168,76,0.12);color:var(--gold);cursor:pointer;border-radius:var(--r);transition:background 0.15s;}
+.btn-save:hover{background:rgba(201,168,76,0.22);}
+
+/* SB STATUS */
+.sb-status{position:fixed;top:12px;right:16px;z-index:500;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:9999px;border:1px solid;}
+.sb-ok{color:#2ECC71;border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.07);}
+.sb-err{color:var(--amber);border-color:rgba(230,126,34,0.3);background:rgba(230,126,34,0.07);}
+
+/* FOOTER */
+.footer{margin-top:60px;padding:36px 32px 32px;border-top:1px solid rgba(201,168,76,0.15);background:rgba(10,12,15,0.95);}
+.footer-inner{display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+.footer-monogram{width:52px;height:52px;border:1px solid rgba(201,168,76,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0;background:rgba(201,168,76,0.05);}
+.footer-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--white);line-height:1.1;}
+.footer-title{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-top:4px;}
+.footer-sub{font-size:11px;color:var(--mist);margin-top:4px;font-weight:300;}
+.footer-contacts{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.footer-link{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(201,168,76,0.2);color:var(--gold-dim);transition:all 0.15s;}
+.footer-link:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.06);}
+.footer-disc{font-size:10px;color:var(--slate);margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.04);line-height:1.6;}
+
+.loading-row td{padding:40px;text-align:center;color:var(--mist);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:11px;}
+.empty-state{padding:60px 32px;text-align:center;}
+.empty-state p{font-family:'Cormorant Garamond';font-size:20px;font-style:italic;color:var(--mist);}
+
+@media(max-width:768px){
+  .header{padding:20px 16px 16px;}
+  .toolbar{padding:10px 16px;}
+  .table-wrap{padding:16px;}
+  .modal-body{grid-template-columns:1fr;}
+  .footer{padding:28px 16px 24px;}
+}
+</style>
+</head>
+<body>
+
+<div class="sb-status sb-err" id="sbStatus">● Connecting</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="header-eyebrow">Vishal Desai · Capital Advisory · Off-Market Mandates</div>
+      <h1 class="header-title">Asset <em>Registry</em></h1>
+      <p class="header-sub">All HTML tools, dashboards & pitch decks across GitHub repos · Supabase-backed · fully editable</p>
+    </div>
+    <div class="header-stats">
+      <div class="hstat"><div class="hstat-val" id="statTotal">—</div><div class="hstat-lbl">Total Files</div></div>
+      <div class="hstat"><div class="hstat-val" id="statP1">—</div><div class="hstat-lbl">P1 Active</div></div>
+      <div class="hstat"><div class="hstat-val" id="statLive">—</div><div class="hstat-lbl">Live</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="filter-group" id="priFilters">
+    <button class="filter-btn active" data-pri="all">All</button>
+    <button class="filter-btn" data-pri="P1">P1</button>
+    <button class="filter-btn" data-pri="P2">P2</button>
+    <button class="filter-btn" data-pri="P3">P3</button>
+  </div>
+  <div class="toolbar-sep"></div>
+  <div class="filter-group" id="typeFilters">
+    <button class="filter-btn active" data-ftype="all">All Types</button>
+    <button class="filter-btn" data-ftype="Dashboard">Dashboard</button>
+    <button class="filter-btn" data-ftype="Pitch Deck">Pitch Deck</button>
+    <button class="filter-btn" data-ftype="Database">Database</button>
+    <button class="filter-btn" data-ftype="Intelligence Tool">Intel Tool</button>
+    <button class="filter-btn" data-ftype="Corporate Tool">Corp Tool</button>
+  </div>
+  <div class="toolbar-sep"></div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search files, deals…">
+  </div>
+  <button class="add-btn" id="addBtn">+ Add File</button>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="registryTable">
+    <thead>
+      <tr>
+        <th style="width:60px">Priority</th>
+        <th style="width:190px">File / Type</th>
+        <th style="width:155px">What It Is</th>
+        <th style="width:85px">Repo</th>
+        <th style="width:80px">Live Link</th>
+        <th style="width:190px">Pending Tasks</th>
+        <th style="width:130px">⛏ Data Mining</th>
+        <th style="width:170px">Deals Supported</th>
+        <th style="width:100px">Status</th>
+        <th style="width:150px">Notes</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr class="loading-row"><td colspan="10">Loading registry…</td></tr>
+    </tbody>
+  </table>
+  <div class="empty-state" id="emptyState" style="display:none"><p>No files match your filters.</p></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-monogram">VD</div>
+    <div>
+      <div class="footer-name">Vishal Desai</div>
+      <div class="footer-title">Director, Capital Advisory · Off-Market Deal Originator</div>
+      <div class="footer-sub">Auremont Capital · DIFC, Dubai &nbsp;|&nbsp; Education · Hospitality · Healthcare · Real Estate · Digital Infrastructure</div>
+      <div class="footer-contacts">
+        <a class="footer-link" href="https://wa.me/971553898410" target="_blank">📱 WhatsApp</a>
+        <a class="footer-link" href="tel:+971553898410">+971 55 389 8410</a>
+        <a class="footer-link" href="https://www.linkedin.com/in/vishal-desai" target="_blank">in LinkedIn</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-disc">Private & Confidential · Auremont Capital · DIFC, Dubai · This registry is an internal working document maintained by Vishal Desai. Not for distribution.</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add New File</div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group full">
+        <label class="form-label">File Name / Path</label>
+        <input class="form-input" id="f-filename" placeholder="e.g. folder/index.html">
+      </div>
+      <div class="form-group">
+        <label class="form-label">File Type</label>
+        <select class="form-select" id="f-type">
+          <option>Dashboard</option><option>Pitch Deck</option><option>Database</option>
+          <option>Intelligence Tool</option><option>Corporate Tool</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-select" id="f-priority">
+          <option value="P1">P1 — Active / Urgent</option>
+          <option value="P2">P2 — Active / Secondary</option>
+          <option value="P3">P3 — Reference / Parked</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Repo</label>
+        <select class="form-select" id="f-repo">
+          <option value="htmls">htmls</option>
+          <option value="auremont-cip">auremont-cip</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="f-status">
+          <option>Live</option><option>In Dev</option><option>Needs Fix</option>
+          <option>Complete</option><option>Parked</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Live URL</label>
+        <input class="form-input" id="f-url" placeholder="https://yash0422.github.io/htmls/…">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">What It Is</label>
+        <input class="form-input" id="f-description" placeholder="1–2 sentence description">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Tasks <span style="color:var(--mist);font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;">— add, tick, or remove below</span></label>
+        <div class="task-manager">
+          <div class="task-manager-list" id="modalTaskList"></div>
+          <div class="task-add-row">
+            <input class="task-add-input" id="taskAddInput" placeholder="Type a task and press Enter or click Add">
+            <button class="task-add-btn" id="taskAddBtn">+ Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">⛏ Data Mining Required</label>
+        <textarea class="form-textarea" id="f-mining" placeholder="LinkedIn verification, BNC data entry, manual research… leave blank if none" style="min-height:50px;"></textarea>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Deals Supported</label>
+        <div class="deal-checkboxes" id="dealCheckboxes"></div>
+        <input class="deal-custom-input" id="f-deal-custom" placeholder="Type a new deal and press Enter to add it">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="f-notes" placeholder="Any comments, context, or reminders…" style="min-height:50px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="btnCancel">Cancel</button>
+      <button class="btn-save" id="btnSave">Save File</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════
+const SB_URL = 'https://nxqdkiggnflajyzmrsbj.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54cWRraWdnbmZsYWp5em1yc2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2NTc4NzEsImV4cCI6MjAyODIzMzg3MX0.Jf9O2QhA3tSx7v0Yh6VJXcN2pHLKnfKDMv1U5mVnCts';
+const TBL = 'html_registry';
+
+async function sbReq(path, opts={}) {
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':opts.prefer||'return=representation',...(opts.headers||{})},
+    ...opts
+  });
+  if(!r.ok) throw new Error(await r.text());
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+
+// ═══════════════════════════════════════
+// SEED DATA
+// ═══════════════════════════════════════
+const SEED = [
+  {priority:'P1',filename:'CIP / index.html',file_type:'Database',
+   description:'200 PE/IB contact intelligence platform. Deal matching, 5-step outreach cadence, email generator, Supabase-backed.',
+   repo:'auremont-cip',live_url:'https://yash0422.github.io/auremont-cip/',
+   tasks:JSON.stringify([{t:'Run outreach sequence on Al Barsha + Garhoud mandates',d:false},{t:'Mark sent emails via Mark as Sent button',d:false}]),
+   data_mining:'',deals:JSON.stringify(['Al Barsha South School — AED 110M Sell-Side','Garhoud BTL (PACE × Al Shafar)','KSA School Expansion','Project Falcon — Healthcare AED 85M Sell-Side','SEPCO III / Al Furjan Master Lease']),
+   status:'Live',notes:'Primary deal distribution tool — all active mandates'},
+
+  {priority:'P1',filename:'edu_invest_db.html',file_type:'Database',
+   description:'183-record education investor database. Scoring rubric, deal match flags, LinkedIn verification columns.',
+   repo:'auremont-cip',live_url:'https://yash0422.github.io/auremont-cip/edu_invest_db.html',
+   tasks:JSON.stringify([{t:'Complete outreach status updates per investor',d:false},{t:'Fix wrong LinkedIn slugs — Taaleem EDIV089 confirmed, estimate 20–30 more',d:false}]),
+   data_mining:'LinkedIn profile verification (kc_li_verified / c2_li_verified columns)\nEstimate 20–30% of records may have incorrect URLs',
+   deals:JSON.stringify(['Al Barsha South School — AED 110M Sell-Side','KSA School Expansion','Garhoud BTL (PACE × Al Shafar)']),
+   status:'Live',notes:'Core investor matching tool for all education mandates'},
+
+  {priority:'P2',filename:'eng_consult_db.html',file_type:'Database',
+   description:'Engineering consultants intelligence DB. BNC Networks data, firm profiles, live project tracking.',
+   repo:'auremont-cip',live_url:'https://yash0422.github.io/auremont-cip/eng_consult_db.html',
+   tasks:JSON.stringify([{t:'Add Imran Khan as 2nd contact for Ridge Engineering',d:false},{t:'Build up to 20–50 consultant firms from BNC portal',d:false}]),
+   data_mining:'Manually load BNC consultant data — Ridge Engineering first\nBNC portal research to find live project data',
+   deals:JSON.stringify(['Deal Origination — General']),
+   status:'In Dev',notes:'Live project data reveals developer targets for sell-side / BTL mandates'},
+
+  {priority:'P1',filename:'alhayathospital / index.html',file_type:'Pitch Deck',
+   description:'Project Falcon investor pitch — AED 85M healthcare sell-side. Password-protected confidential IM, full financials, IRR/MOIC. External buyer version. Alias: Medstar.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/alhayathospital/',
+   tasks:JSON.stringify([{t:'Share with qualified PE buyers and healthcare groups',d:false},{t:'Add LinkedIn to contact block',d:false}]),
+   data_mining:'',deals:JSON.stringify(['Project Falcon — Healthcare AED 85M Sell-Side']),
+   status:'Live',notes:'External buyer version — full contact block with LinkedIn and email'},
+
+  {priority:'P1',filename:'alhayathospital / alhayat-hospital-deal-brief.html',file_type:'Pitch Deck',
+   description:'Project Falcon pitch — internal/office version. Personal email and LinkedIn intentionally removed. For internal team only, not external buyers.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/alhayathospital/alhayat-hospital-deal-brief.html',
+   tasks:JSON.stringify([{t:'Share with internal office members when needed',d:false},{t:'Do not share externally — use index.html for buyers',d:false}]),
+   data_mining:'',deals:JSON.stringify(['Project Falcon — Healthcare AED 85M Sell-Side']),
+   status:'Live',notes:'Internal-only version — no personal email or LinkedIn'},
+
+  {priority:'P1',filename:'alhayathospital / alhayat_investment_dashboard.html',file_type:'Dashboard',
+   description:'Deal workbook for Project Falcon. Rounds 1–4 data room tracker, buyer Q&A prep, deal financials, progress tracker. Internal use only.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/alhayathospital/alhayat_investment_dashboard.html',
+   tasks:JSON.stringify([{t:'Send Round 1 seller questions — drafted, ready to go',d:false},{t:'Commission independent valuation (BDO/Nexia)',d:false},{t:'Update data room completeness % as documents arrive',d:false}]),
+   data_mining:'',deals:JSON.stringify(['Project Falcon — Healthcare AED 85M Sell-Side']),
+   status:'Live',notes:'Vishal-only working document. Do not share with buyers.'},
+
+  {priority:'P1',filename:'KSA-Education-Investment-Intelligence / index.html',file_type:'Dashboard',
+   description:'KSA Education Investment Intelligence microsite. 7 tabs, BTL feasibility calculator, city demand map, demographic data, WhatsApp CTA.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/KSA-Education-Investment-Intelligence/',
+   tasks:JSON.stringify([{t:'Share with PACE Group and KSA Developer contacts',d:false},{t:'Update lease rates/OPEX sliders if new data arrives',d:false}]),
+   data_mining:'',deals:JSON.stringify(['KSA School Expansion']),
+   status:'Live',notes:'Top-version with full case study — most comprehensive KSA education tool'},
+
+  {priority:'P2',filename:'KSA_School_Entry_Platform / index.html',file_type:'Pitch Deck',
+   description:'KSA school operator entry pitch deck. Lighter than intelligence microsite — designed for initial operator conversations.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/KSA_School_Entry_Platform/',
+   tasks:JSON.stringify([{t:'Present to Indian K-12 operators with KSA expansion intent',d:false},{t:'Link back to full KSA Intelligence microsite for deeper dive',d:false}]),
+   data_mining:'Cross-reference against 100 Indian K-12 companies prospected via Vibe\nVerify CEO/COO contact details are current',
+   deals:JSON.stringify(['KSA School Expansion']),
+   status:'Live',notes:'Entry-level pitch. Gateway to full KSA intelligence microsite.'},
+
+  {priority:'P2',filename:'KSA_White-Land-Tax / index.html',file_type:'Intelligence Tool',
+   description:'KSA White Land Tax expert page. Interactive WLT calculator, KSA SVG city map, BTL strategies, Vishal contact card, particle animation.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/KSA_White-Land-Tax/',
+   tasks:JSON.stringify([{t:'Fix calcWLT() calculator bug before sharing',d:false},{t:'Add Vishal photo via LinkedIn URL embed method',d:false}]),
+   data_mining:'',deals:JSON.stringify(['KSA School Expansion']),
+   status:'Needs Fix',notes:'Lead-gen page for KSA landowners. Do not share until calc bug fixed.'},
+
+  {priority:'P2',filename:'Furjan_Residence / index.html',file_type:'Pitch Deck',
+   description:'SEPCO III / Al Furjan Residence 2 master lease proposal. 107 units, AED 8.5M guaranteed annual income, full financials.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/Furjan_Residence/',
+   tasks:JSON.stringify([{t:'Share with master lease counterparties',d:false},{t:'Confirm landlord/SEPCO stakeholder has reviewed latest version',d:false}]),
+   data_mining:'',deals:JSON.stringify(['SEPCO III / Al Furjan Master Lease']),
+   status:'Live',notes:''},
+
+  {priority:'P2',filename:'dps_sharjah / index.html',file_type:'Dashboard',
+   description:'DPS Group institutional intelligence + KSA BTL pitch. 4-school UAE network, revenue model, transaction flow, investor return metrics.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/dps_sharjah/',
+   tasks:JSON.stringify([{t:'Present to Dr. Dinesh Kothari (MD, DPS Group)',d:false},{t:'Attach KSA BTL feasibility outputs from KSA microsite',d:false},{t:'Refine investor return figures if deal parameters update',d:false}]),
+   data_mining:'',deals:JSON.stringify(['KSA School Expansion','Al Barsha South School — AED 110M Sell-Side']),
+   status:'Complete',notes:'Operator pitch to DPS Group as potential KSA school operator partner'},
+
+  {priority:'P2',filename:'Rio_Basabac / index.html',file_type:'Dashboard',
+   description:'9-section Investor Intelligence Brief — Rio Babasac Placer Gold Mine, Imuris, Sonora, Mexico. 890K oz proven reserve, $2.94B at current gold price. NDA-gated.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/Rio_Basabac/',
+   tasks:JSON.stringify([{t:'Add Vishal contact card to footer',d:false},{t:'Identify and approach mining-focused family offices / commodity funds',d:false},{t:'Complete IMR009 and IMR010 drill data when available',d:false}]),
+   data_mining:'Verify current concession status with Mexican mining registry (data from 2011)\nSource NI 43-101 / JORC certified geologist for independent study\nResearch current gold price and update $3,300/oz reference if moved significantly',
+   deals:JSON.stringify(['Rio Basabac — Gold Mine Mexico']),
+   status:'Live',notes:'Names version (with_Names.html) is private — GitHub only. This is the investor-safe version.'},
+
+  {priority:'P2',filename:'valuation-tracker / index.html',file_type:'Database',
+   description:'MMJS Valuation Services outreach tracker. List of potential clients for valuation mandates.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/valuation-tracker/',
+   tasks:JSON.stringify([{t:'Continue building prospect list',d:false},{t:'Log outreach status per contact',d:false}]),
+   data_mining:'Research and identify companies/individuals likely to need valuation services\nVerify contact details for prospects already listed',
+   deals:JSON.stringify(['MMJS Valuation Services']),
+   status:'In Dev',notes:'MMJS / Aaronz & Co. initiative'},
+
+  {priority:'P3',filename:'idea-vault / index.html',file_type:'Corporate Tool',
+   description:'Auremont Capital deal idea capture tool. Stage workflow, localStorage backend, PDF export, opens Claude with context pre-loaded.',
+   repo:'htmls',live_url:'https://yash0422.github.io/htmls/idea-vault/',
+   tasks:JSON.stringify([{t:'Add new deal ideas as they emerge',d:false},{t:'Advance Kigali CDC and Ahmedabad JV to next stage',d:false},{t:'Export PDF when sharing pipeline with partners',d:false}]),
+   data_mining:'',deals:JSON.stringify(['Internal Pipeline Management']),
+   status:'Live',notes:'Feeds into MARVINA scoring engine'}
+];
+
+let DEAL_OPTIONS = [
+  'Al Barsha South School — AED 110M Sell-Side','Garhoud BTL (PACE × Al Shafar)',
+  'KSA School Expansion','Project Falcon — Healthcare AED 85M Sell-Side',
+  'Victoria English School — AED 600M','SEPCO III / Al Furjan Master Lease',
+  'Goa Beachfront Hospitality (SALT / Lux Collective)','Kigali CDC Tri-Party Advisory',
+  'Ahmedabad JV Land','Al Ain School Asset','Rio Basabac — Gold Mine Mexico',
+  'MMJS Valuation Services','Deal Origination — General','Internal Pipeline Management'
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let allRows = [];
+let filterPri = 'all', filterType = 'all', searchTerm = '';
+let editingId = null, sbOnline = false;
+let modalTasks = []; // [{t:'text',d:false}]
+
+// ═══════════════════════════════════════
+// NORMALISE ROW
+// ═══════════════════════════════════════
+function norm(row) {
+  let tasks = row.tasks;
+  if(typeof tasks==='string'){try{tasks=JSON.parse(tasks);}catch{tasks=[];}}
+  if(!Array.isArray(tasks)) tasks=[];
+
+  let deals = row.deals;
+  if(typeof deals==='string'){try{deals=JSON.parse(deals);}catch{deals=deals.split(',').map(s=>s.trim()).filter(Boolean);}}
+  if(!Array.isArray(deals)) deals=[];
+
+  return {...row, tasks, deals};
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+async function init() {
+  try {
+    const data = await sbReq(`${TBL}?select=*&order=priority.asc,id.asc`);
+    sbOnline = true;
+    setSbStatus(true);
+    if(!data || data.length===0) {
+      await sbReq(TBL,{method:'POST',prefer:'return=representation',body:JSON.stringify(SEED)});
+      const fresh = await sbReq(`${TBL}?select=*&order=priority.asc,id.asc`);
+      allRows = (fresh||[]).map(norm);
+    } else {
+      allRows = data.map(norm);
+    }
+  } catch(e) {
+    sbOnline = false;
+    setSbStatus(false);
+    allRows = SEED.map((r,i)=>norm({...r,id:i+1}));
+    showToast('Supabase offline — local data only');
+  }
+  render(); updateStats();
+}
+
+function setSbStatus(ok) {
+  const el=document.getElementById('sbStatus');
+  el.className=`sb-status ${ok?'sb-ok':'sb-err'}`;
+  el.textContent=ok?'● Supabase live':'● Supabase offline';
+}
+
+// ═══════════════════════════════════════
+// RENDER TABLE
+// ═══════════════════════════════════════
+function render() {
+  const tbody = document.getElementById('tableBody');
+  const rows = allRows.filter(r=>{
+    if(filterPri!=='all' && r.priority!==filterPri) return false;
+    if(filterType!=='all' && r.file_type!==filterType) return false;
+    if(searchTerm){
+      const s=searchTerm.toLowerCase();
+      const blob=[r.filename,r.description,r.data_mining,r.notes,...(r.deals||[]),...(r.tasks||[]).map(t=>t.t||'')].join(' ').toLowerCase();
+      if(!blob.includes(s)) return false;
+    }
+    return true;
+  });
+
+  if(!rows.length){
+    tbody.innerHTML='';
+    document.getElementById('emptyState').style.display='block';
+    return;
+  }
+  document.getElementById('emptyState').style.display='none';
+  tbody.innerHTML = rows.map(renderRow).join('');
+}
+
+function renderRow(r) {
+  const pri=r.priority||'P3';
+  const priCls=pri==='P1'?'pri-1':pri==='P2'?'pri-2':'pri-3';
+  const typeMap={'Dashboard':'ft-dashboard','Pitch Deck':'ft-pitch','Database':'ft-database','Intelligence Tool':'ft-tool','Corporate Tool':'ft-corporate'};
+  const typeCls=typeMap[r.file_type]||'ft-corporate';
+  const repoCls=r.repo==='auremont-cip'?'repo-cip':'repo-html';
+  const statusMap={'Live':'s-live','In Dev':'s-indev','Needs Fix':'s-needsfix','Complete':'s-complete','Parked':'s-parked'};
+  const statusCls=statusMap[r.status]||'s-live';
+  const linkHtml=r.live_url
+    ?`<a class="live-link" href="${esc(r.live_url)}" target="_blank" rel="noopener">↗ Open</a>`
+    :`<span class="live-link no-link">Not live</span>`;
+  const dealsHtml=(r.deals||[]).map(d=>`<span class="deal-tag">${esc(d)}</span>`).join('');
+  const mineItems=(r.data_mining||'').split('\n').filter(Boolean);
+  const mineHtml=mineItems.length
+    ?mineItems.map(m=>`<div class="mine-flag">${esc(m)}</div>`).join('')
+    :`<span class="no-mine">None</span>`;
+  const notesVal=r.notes||'';
+  const taskHtml=renderTasksCompact(r);
+
+  return `<tr data-id="${r.id}">
+  <td><span class="pri-badge ${priCls}" onclick="cyclePri(${r.id})" title="Click to cycle">${pri}</span></td>
+  <td><div class="fname">${esc(r.filename||'')}</div><span class="ftype-badge ${typeCls}">${esc(r.file_type||'')}</span></td>
+  <td><div class="desc">${esc(r.description||'')}</div></td>
+  <td><span class="repo-chip ${repoCls}">${esc(r.repo||'')}</span></td>
+  <td>${linkHtml}</td>
+  <td class="task-cell" id="tasks-${r.id}">${taskHtml}</td>
+  <td>${mineHtml}</td>
+  <td><div class="deal-tags">${dealsHtml||'<span class="no-mine">—</span>'}</div></td>
+  <td>
+    <select class="status-select ${statusCls}" onchange="changeStatus(this,${r.id})">
+      ${['Live','In Dev','Needs Fix','Complete','Parked'].map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}
+    </select>
+    <div class="row-actions">
+      <button class="act-btn act-edit" onclick="editRow(${r.id})" title="Edit">✎ Edit</button>
+      <button class="act-btn act-del" onclick="deleteRow(${r.id})" title="Delete">✕</button>
+    </div>
+  </td>
+  <td class="notes-cell">
+    <div class="notes-display${notesVal?'':' empty'}" id="nd-${r.id}" onclick="startNotesEdit(${r.id})">${notesVal||'Click to add note…'}</div>
+    <textarea class="notes-textarea" id="nt-${r.id}" onblur="saveNotes(${r.id})" onkeydown="if(event.key==='Escape')cancelNotes(${r.id})">${esc(notesVal)}</textarea>
+  </td>
+</tr>`;
+}
+
+function renderTasksCompact(r) {
+  const tasks = r.tasks||[];
+  const pending = tasks.filter(t=>!t.d);
+  const done = tasks.filter(t=>t.d);
+  const SHOW=3;
+  let html='';
+
+  const showPending = pending.slice(0,SHOW);
+  showPending.forEach(t=>{
+    const idx=tasks.indexOf(t);
+    html+=`<div class="task-pending"><button class="tick-btn" onclick="tickTask(${r.id},${idx})" title="Mark done">✓</button><span>${esc(t.t)}</span></div>`;
+  });
+
+  const moreP=pending.length-SHOW;
+  const expanded=r._expanded||false;
+
+  if(moreP>0 && !expanded){
+    html+=`<button class="task-expand-btn" onclick="expandTasks(${r.id})">+${moreP} more pending</button>`;
+  } else if(expanded){
+    pending.slice(SHOW).forEach(t=>{
+      const idx=tasks.indexOf(t);
+      html+=`<div class="task-pending"><button class="tick-btn" onclick="tickTask(${r.id},${idx})" title="Mark done">✓</button><span>${esc(t.t)}</span></div>`;
+    });
+    if(moreP>0) html+=`<button class="task-expand-btn" onclick="collapseTasks(${r.id})">↑ Collapse</button>`;
+  }
+
+  if(done.length){
+    const doneExpanded=r._doneExpanded||false;
+    if(!doneExpanded){
+      html+=`<button class="task-expand-btn" onclick="expandDone(${r.id})" style="color:var(--green);opacity:0.7;">✓ ${done.length} done</button>`;
+    } else {
+      html+=`<button class="task-expand-btn" onclick="collapseDone(${r.id})" style="color:var(--green);opacity:0.7;">↑ Hide done</button>`;
+      done.forEach(t=>{
+        const idx=tasks.indexOf(t);
+        html+=`<div class="task-done"><button class="tick-btn ticked" onclick="tickTask(${r.id},${idx})" title="Mark pending">✓</button><span class="task-text struck">${esc(t.t)}</span></div>`;
+      });
+    }
+  }
+
+  if(!tasks.length) html=`<span class="no-mine">No tasks</span>`;
+  return html;
+}
+
+// ═══════════════════════════════════════
+// TASK INTERACTIONS
+// ═══════════════════════════════════════
+function expandTasks(id){const r=allRows.find(x=>x.id===id);if(r){r._expanded=true;refreshTaskCell(r);}}
+function collapseTasks(id){const r=allRows.find(x=>x.id===id);if(r){r._expanded=false;refreshTaskCell(r);}}
+function expandDone(id){const r=allRows.find(x=>x.id===id);if(r){r._doneExpanded=true;refreshTaskCell(r);}}
+function collapseDone(id){const r=allRows.find(x=>x.id===id);if(r){r._doneExpanded=false;refreshTaskCell(r);}}
+
+function refreshTaskCell(r){
+  const cell=document.getElementById(`tasks-${r.id}`);
+  if(cell) cell.innerHTML=renderTasksCompact(r);
+}
+
+async function tickTask(id,idx){
+  const r=allRows.find(x=>x.id===id);
+  if(!r||!r.tasks[idx]) return;
+  r.tasks[idx].d=!r.tasks[idx].d;
+  // Sort: pending first, done last
+  r.tasks.sort((a,b)=>a.d-b.d);
+  await persistTasks(r);
+  refreshTaskCell(r);
+}
+
+async function persistTasks(r){
+  if(sbOnline){
+    try{
+      await sbReq(`${TBL}?id=eq.${r.id}`,{method:'PATCH',body:JSON.stringify({tasks:JSON.stringify(r.tasks)})});
+      showToast('Saved');
+    }catch{showToast('Save failed');}
+  }
+}
+
+// ═══════════════════════════════════════
+// NOTES INLINE EDIT
+// ═══════════════════════════════════════
+function startNotesEdit(id){
+  document.getElementById(`nd-${id}`).style.display='none';
+  const ta=document.getElementById(`nt-${id}`);
+  ta.style.display='block';
+  ta.focus();
+}
+function cancelNotes(id){
+  document.getElementById(`nt-${id}`).style.display='none';
+  document.getElementById(`nd-${id}`).style.display='block';
+}
+async function saveNotes(id){
+  const ta=document.getElementById(`nt-${id}`);
+  const val=ta.value.trim();
+  const r=allRows.find(x=>x.id===id);
+  if(r) r.notes=val;
+  ta.style.display='none';
+  const disp=document.getElementById(`nd-${id}`);
+  disp.textContent=val||'Click to add note…';
+  disp.className=`notes-display${val?'':' empty'}`;
+  disp.style.display='block';
+  if(sbOnline){
+    try{await sbReq(`${TBL}?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({notes:val})});showToast('Note saved');}
+    catch{showToast('Save failed');}
+  }
+}
+
+// ═══════════════════════════════════════
+// STATUS + PRIORITY
+// ═══════════════════════════════════════
+async function changeStatus(sel,id){
+  const v=sel.value;
+  const cls={'Live':'s-live','In Dev':'s-indev','Needs Fix':'s-needsfix','Complete':'s-complete','Parked':'s-parked'}[v]||'s-live';
+  sel.className=`status-select ${cls}`;
+  const r=allRows.find(x=>x.id===id);if(r) r.status=v;
+  if(sbOnline){try{await sbReq(`${TBL}?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({status:v})});showToast('Status saved');}catch{showToast('Save failed');}}
+  updateStats();
+}
+
+async function cyclePri(id){
+  const r=allRows.find(x=>x.id===id);if(!r) return;
+  r.priority={'P1':'P2','P2':'P3','P3':'P1'}[r.priority]||'P2';
+  if(sbOnline){try{await sbReq(`${TBL}?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({priority:r.priority})});showToast(`Priority → ${r.priority}`);}catch{showToast('Save failed');}}
+  else showToast(`Priority → ${r.priority}`);
+  render(); updateStats();
+}
+
+async function deleteRow(id){
+  if(!confirm('Remove this file from the registry?')) return;
+  allRows=allRows.filter(r=>r.id!==id);
+  if(sbOnline){try{await sbReq(`${TBL}?id=eq.${id}`,{method:'DELETE',prefer:'return=minimal'});showToast('Removed');}catch{showToast('Delete failed');}}
+  render(); updateStats();
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function buildModalTaskList(){
+  const list=document.getElementById('modalTaskList');
+  if(!modalTasks.length){list.innerHTML=`<div style="padding:10px 12px;color:var(--slate);font-size:11px;font-style:italic;">No tasks yet — add below</div>`;return;}
+  const pending=modalTasks.filter(t=>!t.d);
+  const done=modalTasks.filter(t=>t.d);
+  const items=[...pending,...done];
+  list.innerHTML=items.map((t,i)=>{
+    const realIdx=modalTasks.indexOf(t);
+    return `<div class="tm-item${t.d?' done-item':''}">
+      <button class="tm-tick${t.d?' ticked':''}" onclick="modalTickTask(${realIdx})">${t.d?'✓':''}</button>
+      <span class="tm-text${t.d?' struck':''}">${esc(t.t)}</span>
+      <button class="tm-del" onclick="modalDelTask(${realIdx})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function modalTickTask(idx){
+  if(!modalTasks[idx]) return;
+  modalTasks[idx].d=!modalTasks[idx].d;
+  buildModalTaskList();
+}
+function modalDelTask(idx){
+  modalTasks.splice(idx,1);
+  buildModalTaskList();
+}
+function addModalTask(){
+  const inp=document.getElementById('taskAddInput');
+  const v=inp.value.trim();
+  if(!v) return;
+  modalTasks.push({t:v,d:false});
+  inp.value='';
+  buildModalTaskList();
+}
+document.getElementById('taskAddBtn').addEventListener('click',addModalTask);
+document.getElementById('taskAddInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addModalTask();}});
+
+function buildDealCheckboxes(selected=[]){
+  const all=[...new Set([...DEAL_OPTIONS,...allRows.flatMap(r=>r.deals||[])])];
+  document.getElementById('dealCheckboxes').innerHTML=all.map(d=>`
+    <label class="deal-check-item">
+      <input type="checkbox" value="${esc(d)}"${selected.includes(d)?' checked':''}> ${esc(d)}
+    </label>`).join('');
+}
+
+document.getElementById('f-deal-custom').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const v=e.target.value.trim();
+    if(v&&!DEAL_OPTIONS.includes(v)){DEAL_OPTIONS.push(v);}
+    buildDealCheckboxes(getSelectedDeals());
+    setTimeout(()=>{
+      document.querySelectorAll('#dealCheckboxes input').forEach(cb=>{if(cb.value===v)cb.checked=true;});
+    },10);
+    e.target.value='';
+  }
+});
+
+function getSelectedDeals(){
+  const checked=[...document.querySelectorAll('#dealCheckboxes input:checked')].map(c=>c.value);
+  const custom=document.getElementById('f-deal-custom').value.trim();
+  if(custom&&!checked.includes(custom)) checked.push(custom);
+  return checked;
+}
+
+function openModal(row=null){
+  editingId=row?row.id:null;
+  document.getElementById('modalTitle').textContent=row?'Edit File':'Add New File';
+  document.getElementById('f-filename').value=row?row.filename:'';
+  document.getElementById('f-type').value=row?row.file_type:'Dashboard';
+  document.getElementById('f-priority').value=row?row.priority:'P2';
+  document.getElementById('f-repo').value=row?row.repo:'htmls';
+  document.getElementById('f-status').value=row?row.status:'Live';
+  document.getElementById('f-url').value=row?row.live_url||'':'';
+  document.getElementById('f-description').value=row?row.description:'';
+  document.getElementById('f-mining').value=row?row.data_mining||'':'';
+  document.getElementById('f-notes').value=row?row.notes||'':'';
+  document.getElementById('f-deal-custom').value='';
+  modalTasks=row?(row.tasks||[]).map(t=>({...t})):[];
+  buildModalTaskList();
+  buildDealCheckboxes(row?row.deals:[]);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');editingId=null;}
+function editRow(id){const r=allRows.find(x=>x.id===id);if(r) openModal(r);}
+
+document.getElementById('addBtn').addEventListener('click',()=>openModal());
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('btnCancel').addEventListener('click',closeModal);
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+document.getElementById('btnSave').addEventListener('click',async()=>{
+  const deals=getSelectedDeals();
+  const payload={
+    filename:document.getElementById('f-filename').value.trim(),
+    file_type:document.getElementById('f-type').value,
+    priority:document.getElementById('f-priority').value,
+    repo:document.getElementById('f-repo').value,
+    status:document.getElementById('f-status').value,
+    live_url:document.getElementById('f-url').value.trim(),
+    description:document.getElementById('f-description').value.trim(),
+    tasks:JSON.stringify(modalTasks),
+    data_mining:document.getElementById('f-mining').value.trim(),
+    notes:document.getElementById('f-notes').value.trim(),
+    deals:JSON.stringify(deals)
+  };
+  if(!payload.filename){showToast('File name required');return;}
+  if(editingId){
+    if(sbOnline){try{await sbReq(`${TBL}?id=eq.${editingId}`,{method:'PATCH',body:JSON.stringify(payload)});}catch{showToast('Update failed');}}
+    const idx=allRows.findIndex(r=>r.id===editingId);
+    if(idx>-1) allRows[idx]=norm({...allRows[idx],...payload,tasks:modalTasks,deals});
+    showToast('File updated');
+  } else {
+    let newRow=norm({...payload,tasks:modalTasks,deals});
+    if(sbOnline){try{const res=await sbReq(TBL,{method:'POST',body:JSON.stringify(payload)});if(res&&res[0])newRow=norm(res[0]);}catch{showToast('Save failed');}}
+    else newRow.id=Date.now();
+    allRows.push(newRow);
+    showToast('File added');
+  }
+  closeModal(); render(); updateStats();
+});
+
+// ═══════════════════════════════════════
+// FILTERS + SEARCH
+// ═══════════════════════════════════════
+document.getElementById('priFilters').addEventListener('click',e=>{
+  const b=e.target.closest('[data-pri]');if(!b) return;
+  filterPri=b.dataset.pri;
+  document.querySelectorAll('[data-pri]').forEach(x=>x.classList.toggle('active',x.dataset.pri===filterPri));
+  render();
+});
+document.getElementById('typeFilters').addEventListener('click',e=>{
+  const b=e.target.closest('[data-ftype]');if(!b) return;
+  filterType=b.dataset.ftype;
+  document.querySelectorAll('[data-ftype]').forEach(x=>x.classList.toggle('active',x.dataset.ftype===filterType));
+  render();
+});
+document.getElementById('searchInput').addEventListener('input',e=>{searchTerm=e.target.value.trim();render();});
+
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+function updateStats(){
+  document.getElementById('statTotal').textContent=allRows.length;
+  document.getElementById('statP1').textContent=allRows.filter(r=>r.priority==='P1').length;
+  document.getElementById('statLive').textContent=allRows.filter(r=>r.status==='Live').length;
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+init();
+</script>
+</body>
+</html>
