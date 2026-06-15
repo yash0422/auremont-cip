@@ -198,7 +198,32 @@ td{padding:11px 10px;vertical-align:top;}
 .footer-link:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.06);}
 .footer-disc{font-size:10px;color:var(--slate);margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.04);line-height:1.6;}
 
-.loading-row td{padding:40px;text-align:center;color:var(--mist);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:11px;}
+.guide-btn{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:7px 18px;border:1px solid rgba(201,168,76,0.3);background:transparent;color:var(--mist);cursor:pointer;border-radius:var(--r);transition:all 0.15s;}
+.guide-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* GUIDE MODAL */
+.guide-overlay{position:fixed;inset:0;background:rgba(5,6,8,0.75);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;}
+.guide-overlay.open{display:flex;}
+.guide-modal{background:var(--ink-2);border:1px solid rgba(201,168,76,0.25);border-radius:var(--r);width:100%;max-width:440px;position:relative;overflow:hidden;}
+.guide-header{padding:12px 16px 10px;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.guide-header-left{display:flex;align-items:center;gap:10px;}
+.guide-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold-dim);text-transform:uppercase;}
+.guide-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--white);text-transform:uppercase;}
+.guide-close{background:none;border:1px solid rgba(139,149,168,0.2);color:var(--mist);font-size:11px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:var(--r);flex-shrink:0;transition:all 0.15s;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;}
+.guide-close:hover{color:var(--white);border-color:rgba(201,168,76,0.3);}
+.guide-body{padding:16px 16px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+.guide-cat{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:2px 8px;border-radius:9999px;}
+.cat-habit{background:rgba(41,128,185,0.12);color:#5DADE2;border:1px solid rgba(41,128,185,0.25);}
+.cat-deal{background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.2);}
+.cat-task{background:rgba(39,174,96,0.1);color:#2ECC71;border:1px solid rgba(39,174,96,0.2);}
+.cat-data{background:rgba(230,126,34,0.1);color:var(--amber);border:1px solid rgba(230,126,34,0.2);}
+.guide-tip-num{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1px;color:var(--gold-dim);}
+.guide-tip-text{font-family:'Barlow',sans-serif;font-size:13px;font-weight:400;color:var(--fog);line-height:1.65;}
+.guide-footer{padding:10px 16px 12px;border-top:1px solid rgba(201,168,76,0.08);display:flex;align-items:center;justify-content:space-between;}
+.guide-counter{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1px;color:var(--slate);}
+.guide-next{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.08);color:var(--gold);cursor:pointer;border-radius:var(--r);transition:all 0.15s;}
+.guide-next:hover{background:rgba(201,168,76,0.18);border-color:var(--gold);}
+.guide-divider{width:28px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
 .empty-state{padding:60px 32px;text-align:center;}
 .empty-state p{font-family:'Cormorant Garamond';font-size:20px;font-style:italic;color:var(--mist);}
 
@@ -253,6 +278,7 @@ td{padding:11px 10px;vertical-align:top;}
     <span class="search-icon">🔍</span>
     <input class="search-input" id="searchInput" type="text" placeholder="Search files, deals…">
   </div>
+  <button class="guide-btn" id="guideBtn">☰ Guide</button>
   <button class="add-btn" id="addBtn">+ Add File</button>
 </div>
 
@@ -300,6 +326,31 @@ td{padding:11px 10px;vertical-align:top;}
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- GUIDE MODAL -->
+<div class="guide-overlay" id="guideOverlay">
+  <div class="guide-modal">
+    <div class="guide-header">
+      <div class="guide-header-left">
+        <div class="guide-eyebrow">Productivity Guide</div>
+        <div class="guide-title">Asset Registry · Vishal Desai</div>
+      </div>
+      <button class="guide-close" id="guideClose">✕ Close</button>
+    </div>
+    <div class="guide-body">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="guide-cat" id="guideCat"></span>
+        <span class="guide-tip-num" id="guideTipNum"></span>
+      </div>
+      <div class="guide-divider"></div>
+      <div class="guide-tip-text" id="guideTipText"></div>
+    </div>
+    <div class="guide-footer">
+      <div class="guide-counter" id="guideCounter"></div>
+      <button class="guide-next" id="guideNext">Next Tip →</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
@@ -933,6 +984,98 @@ function showToast(msg){
 // UTILS
 // ═══════════════════════════════════════
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ═══════════════════════════════════════
+// GUIDE TIPS
+// ═══════════════════════════════════════
+const TIPS = [
+  // Daily Habits
+  {cat:'Daily Habits',cls:'cat-habit',n:1,text:'Open the registry before you open WhatsApp. What you look at first sets the tone for the day.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:2,text:'The registry is only useful if it\'s accurate. Spend 5 minutes at end of day updating it — not 30 minutes on Friday trying to remember what happened.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:3,text:'One task moved forward every day beats five tasks started and none finished.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:4,text:'If you haven\'t opened a file in 10 days, either action it today or downgrade its priority. Stale P1s are just anxiety dressed as productivity.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:5,text:'The registry is your second brain. Your actual brain should be free to think about deals, not remember what needs doing.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:6,text:'Friday is not for doing — it\'s for reviewing. Look at what moved this week. Be honest about what didn\'t.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:7,text:'When something comes up in a call or meeting — a follow-up, a fix, a new idea — add it to the registry immediately. Not later. Immediately.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:8,text:'A task with no owner and no deadline is just a wish. Every task in the registry should feel like a commitment.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:9,text:'Don\'t confuse being busy with making progress. Check if today\'s activity moved a P1 file forward.'},
+  {cat:'Daily Habits',cls:'cat-habit',n:10,text:'The registry shows you what\'s live, what\'s parked, and what\'s broken. If you don\'t look at it daily, you\'re flying blind.'},
+  // Deal Discipline
+  {cat:'Deal Discipline',cls:'cat-deal',n:11,text:'A pitch deck that hasn\'t been shared is just a file. The value is in the conversation it starts, not in building it.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:12,text:'Every P1 file represents active money on the table. Treat it accordingly.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:13,text:'If a deal has been sitting at the same stage for two weeks, something is blocked. Name the block. Unblock it or accept it\'s stalled.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:14,text:'The difference between a mandate and a closed deal is follow-up cadence. The registry tracks the tools — you have to make the calls.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:15,text:'Never share an external pitch deck without checking it\'s the right version. Internal and external versions exist for a reason.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:16,text:'A deal dashboard with 0% data room completeness is a risk — not just a task. Buyers lose confidence when information is slow.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:17,text:'Your pitch decks are as good as your last update. An outdated figure in a deck costs more than the time it takes to fix it.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:18,text:'If a file is marked Needs Fix, it is not a live tool. Do not share it, do not reference it in conversations. Fix it first.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:19,text:'The data mining column is your origination engine. Neglecting it means your pipeline feeds itself only from inbound — which is unpredictable.'},
+  {cat:'Deal Discipline',cls:'cat-deal',n:20,text:'A deal in the Idea Vault with no next action is just a daydream. Move it forward or let it go.'},
+  // Task Management
+  {cat:'Task Management',cls:'cat-task',n:21,text:'Pending tasks at the top, done tasks at the bottom. That order is intentional — your eye should land on what still needs doing.'},
+  {cat:'Task Management',cls:'cat-task',n:22,text:'Ticking a task is satisfying. Don\'t let that satisfaction become the goal. The goal is what the task unlocks.'},
+  {cat:'Task Management',cls:'cat-task',n:23,text:'If a task has been pending for 3 weeks, it either needs to be broken into smaller steps or honestly deleted.'},
+  {cat:'Task Management',cls:'cat-task',n:24,text:'Three visible pending tasks per file is by design. If you see "+5 more", that file needs a dedicated session, not a glance.'},
+  {cat:'Task Management',cls:'cat-task',n:25,text:'Done tasks stay visible for a reason — they show momentum. When a file has 10 struck-through tasks, you know real work happened there.'},
+  {cat:'Task Management',cls:'cat-task',n:26,text:'Adding a task takes 10 seconds. Not adding it and forgetting it costs you far more.'},
+  {cat:'Task Management',cls:'cat-task',n:27,text:'The Edit button exists for a reason. When a task changes in scope — update it. An inaccurate task is worse than no task.'},
+  {cat:'Task Management',cls:'cat-task',n:28,text:'If the same task appears on three different files, it\'s probably a project, not a task. Give it its own file or a dedicated session.'},
+  {cat:'Task Management',cls:'cat-task',n:29,text:'Priority cycling — P1 to P2 to P3 — should be a deliberate decision, not a way to avoid doing something uncomfortable.'},
+  {cat:'Task Management',cls:'cat-task',n:30,text:'The Notes column is for context, not for tasks. Keep tasks in the task system. Keep context in Notes. Don\'t mix them.'},
+  // Data Mining & Intelligence
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:31,text:'LinkedIn verification is not glamorous work. But a wrong profile URL means your outreach goes to the wrong person — or nowhere.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:32,text:'Data mining has a compounding return. 10 verified contacts today means 10 warm outreach opportunities next week.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:33,text:'The engineering consultants database reveals live projects before they\'re public. That is origination intelligence — treat it as such.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:34,text:'A database with 183 records and 30% wrong URLs is not a 183-record database. It\'s a 128-record database with noise.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:35,text:'Batch your data mining. 20 minutes of focused verification beats five interrupted 4-minute sessions scattered through the day.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:36,text:'Every record you verify is a door that opens. Every unverified record is a door you don\'t know is locked or open.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:37,text:'The valuation tracker is your MMJS pipeline. Neglecting it means leaving a revenue stream unattended.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:38,text:'Data quality degrades over time — people change roles, companies pivot, LinkedIn URLs break. Build a habit of periodic re-verification, not just first-time entry.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:39,text:'When you find a wrong record, don\'t just fix it — ask why it was wrong. Pattern recognition in data errors saves hours later.'},
+  {cat:'Data Mining & Intelligence',cls:'cat-data',n:40,text:'Intelligence tools are only as powerful as the data inside them. A beautiful dashboard with stale data is decoration, not intelligence.'}
+];
+
+let currentTipIdx = -1;
+let shownTips = [];
+
+function getRandomTip() {
+  // Reset when all tips shown
+  if(shownTips.length >= TIPS.length) shownTips = [];
+  const remaining = TIPS.filter((_,i) => !shownTips.includes(i));
+  const pick = remaining[Math.floor(Math.random() * remaining.length)];
+  const idx = TIPS.indexOf(pick);
+  shownTips.push(idx);
+  currentTipIdx = idx;
+  return pick;
+}
+
+function showGuideTip(tip) {
+  document.getElementById('guideCat').textContent = tip.cat;
+  document.getElementById('guideCat').className = `guide-cat ${tip.cls}`;
+  document.getElementById('guideTipNum').textContent = `Tip ${tip.n} of 40`;
+  document.getElementById('guideTipText').textContent = tip.text;
+  document.getElementById('guideCounter').textContent = `${shownTips.length} of 40 tips seen this session`;
+}
+
+function openGuide() {
+  const tip = getRandomTip();
+  showGuideTip(tip);
+  document.getElementById('guideOverlay').classList.add('open');
+}
+
+function closeGuide() {
+  document.getElementById('guideOverlay').classList.remove('open');
+}
+
+document.getElementById('guideBtn').addEventListener('click', openGuide);
+document.getElementById('guideClose').addEventListener('click', closeGuide);
+document.getElementById('guideNext').addEventListener('click', () => {
+  const tip = getRandomTip();
+  showGuideTip(tip);
+});
+document.getElementById('guideOverlay').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeGuide();
+});
 
 init();
 </script>
