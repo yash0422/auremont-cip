@@ -639,6 +639,9 @@ td { padding: 11px 14px; vertical-align: middle; }
       <div class="fgrid" style="margin-top:12px">
         <div class="fg"><label>Location</label><input type="text" id="f-c1-loc" placeholder="City"></div>
         <div class="fg"><label>LinkedIn URL</label><input type="text" id="f-c1-li" placeholder="https://linkedin.com/in/…"></div>
+        <div class="fg"><label>Email</label><input type="email" id="f-c1-email" placeholder="name@company.com"></div>
+        <div class="fg"><label>Mobile</label><input type="text" id="f-c1-mobile" placeholder="+971 5X XXX XXXX"></div>
+        <div class="fg"><label>Office Landline</label><input type="text" id="f-c1-office" placeholder="+971 4 XXX XXXX"></div>
       </div>
     </div>
     <div class="fsec">
@@ -647,6 +650,9 @@ td { padding: 11px 14px; vertical-align: middle; }
         <div class="fg"><label>Name</label><input type="text" id="f-c2-name" placeholder="Full name"></div>
         <div class="fg"><label>Title</label><input type="text" id="f-c2-title" placeholder="e.g. Partner"></div>
         <div class="fg"><label>LinkedIn URL</label><input type="text" id="f-c2-li" placeholder="https://linkedin.com/in/…"></div>
+        <div class="fg"><label>Email</label><input type="email" id="f-c2-email" placeholder="name@company.com"></div>
+        <div class="fg"><label>Mobile</label><input type="text" id="f-c2-mobile" placeholder="+971 5X XXX XXXX"></div>
+        <div class="fg"><label>Office Landline</label><input type="text" id="f-c2-office" placeholder="+971 4 XXX XXXX"></div>
       </div>
     </div>
     <div class="fsec">
@@ -935,7 +941,9 @@ function openEditModal(id) {
     'f-hq-country':'headquarters_country','f-hq-city':'headquarters_city','f-regional':'regional_offices',
     'f-aum':'aum','f-c1-name':'key_contact_name','f-c1-title':'key_contact_title',
     'f-c1-dept':'key_contact_department','f-c1-loc':'key_contact_location','f-c1-li':'key_contact_linkedin',
+    'f-c1-email':'key_contact_email','f-c1-mobile':'key_contact_mobile','f-c1-office':'key_contact_office',
     'f-c2-name':'contact2_name','f-c2-title':'contact2_title','f-c2-li':'contact2_linkedin',
+    'f-c2-email':'contact2_email','f-c2-mobile':'contact2_mobile','f-c2-office':'contact2_office',
     'f-first-date':'first_contact_date','f-last-date':'last_contact_date',
     'f-followup':'next_followup','f-access':'relationship_access_level','f-notes':'notes'
   };
@@ -961,7 +969,8 @@ function closeModal(e){if(e&&e.target!==document.getElementById('modal-overlay')
 
 function clearForm(){
   ['f-investor-id','f-investor-name','f-hq-country','f-hq-city','f-regional','f-aum',
-   'f-c1-name','f-c1-title','f-c1-dept','f-c1-loc','f-c1-li','f-c2-name','f-c2-title','f-c2-li',
+   'f-c1-name','f-c1-title','f-c1-dept','f-c1-loc','f-c1-li','f-c1-email','f-c1-mobile','f-c1-office',
+   'f-c2-name','f-c2-title','f-c2-li','f-c2-email','f-c2-mobile','f-c2-office',
    'f-first-date','f-last-date','f-followup','f-access','f-notes','f-id'].forEach(id=>document.getElementById(id).value='');
   ['f-cap-tier','f-edu-role','f-channel'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-status-sel').value='Not contacted';
@@ -986,9 +995,15 @@ async function saveInvestor() {
     key_contact_department:document.getElementById('f-c1-dept').value.trim()||null,
     key_contact_location:document.getElementById('f-c1-loc').value.trim()||null,
     key_contact_linkedin:document.getElementById('f-c1-li').value.trim()||null,
+    key_contact_email:document.getElementById('f-c1-email').value.trim()||null,
+    key_contact_mobile:document.getElementById('f-c1-mobile').value.trim()||null,
+    key_contact_office:document.getElementById('f-c1-office').value.trim()||null,
     contact2_name:document.getElementById('f-c2-name').value.trim()||null,
     contact2_title:document.getElementById('f-c2-title').value.trim()||null,
     contact2_linkedin:document.getElementById('f-c2-li').value.trim()||null,
+    contact2_email:document.getElementById('f-c2-email').value.trim()||null,
+    contact2_mobile:document.getElementById('f-c2-mobile').value.trim()||null,
+    contact2_office:document.getElementById('f-c2-office').value.trim()||null,
     outreach_channel:document.getElementById('f-channel').value||null,
     meeting_status:document.getElementById('f-status-sel').value||'Not contacted',
     interest_level:document.getElementById('f-interest').value||'Unknown',
