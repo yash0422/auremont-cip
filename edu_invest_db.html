@@ -318,6 +318,10 @@ td { padding: 11px 14px; vertical-align: middle; }
 }
 .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--gold); }
 .fg textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.ac-row { background:rgba(255,255,255,0.03);border:1px solid var(--bord2);border-radius:8px;padding:14px;margin-bottom:10px;position:relative; }
+.ac-remove { position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px; }
+.ac-remove:hover { color:#ef4444;background:rgba(239,68,68,0.1); }
+.ac-empty { font-size:12px;color:var(--text3);padding:8px 0;font-style:italic; }
 .fg select {
   appearance: none; cursor: pointer; padding-right: 28px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C9A84C'/%3E%3C/svg%3E");
@@ -630,6 +634,13 @@ td { padding: 11px 14px; vertical-align: middle; }
       <div class="fgrid c1"><div class="fg"><label>AUM</label><input type="text" id="f-aum" placeholder="e.g. ~$2B"></div></div>
     </div>
     <div class="fsec">
+      <div class="fsec-title">Company Online Presence</div>
+      <div class="fgrid">
+        <div class="fg"><label>Company Website</label><input type="text" id="f-company-website" placeholder="https://www.company.com/"></div>
+        <div class="fg"><label>Company LinkedIn</label><input type="text" id="f-company-linkedin" placeholder="https://www.linkedin.com/company/…"></div>
+      </div>
+    </div>
+    <div class="fsec">
       <div class="fsec-title">Primary Contact</div>
       <div class="fgrid c3">
         <div class="fg"><label>Name</label><input type="text" id="f-c1-name" placeholder="Full name"></div>
@@ -649,11 +660,21 @@ td { padding: 11px 14px; vertical-align: middle; }
       <div class="fgrid c3">
         <div class="fg"><label>Name</label><input type="text" id="f-c2-name" placeholder="Full name"></div>
         <div class="fg"><label>Title</label><input type="text" id="f-c2-title" placeholder="e.g. Partner"></div>
+        <div class="fg"><label>Department</label><input type="text" id="f-c2-dept" placeholder="e.g. CxO"></div>
+      </div>
+      <div class="fgrid" style="margin-top:12px">
         <div class="fg"><label>LinkedIn URL</label><input type="text" id="f-c2-li" placeholder="https://linkedin.com/in/…"></div>
         <div class="fg"><label>Email</label><input type="email" id="f-c2-email" placeholder="name@company.com"></div>
         <div class="fg"><label>Mobile</label><input type="text" id="f-c2-mobile" placeholder="+971 5X XXX XXXX"></div>
         <div class="fg"><label>Office Landline</label><input type="text" id="f-c2-office" placeholder="+971 4 XXX XXXX"></div>
       </div>
+    </div>
+    <div class="fsec">
+      <div class="fsec-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Additional Contacts <span style="color:var(--text3);font-weight:400;font-size:11px;">(reference only — not shown on main view)</span></span>
+        <button type="button" class="btn btn-outline btn-xs" onclick="addContactRow()" style="font-size:11px;padding:4px 12px;">+ Add Contact</button>
+      </div>
+      <div id="additional-contacts-list"></div>
     </div>
     <div class="fsec">
       <div class="fsec-title">Outreach & Pipeline</div>
@@ -931,7 +952,46 @@ function openAddModal() {
   document.getElementById('modal-overlay').classList.add('open');
 }
 
-function openEditModal(id) {
+// ── Additional Contacts (dynamic, stored as JSON array) ──
+let additionalContacts = [];
+
+function renderContactRows() {
+  const list = document.getElementById('additional-contacts-list');
+  if (!additionalContacts.length) {
+    list.innerHTML = '<div class="ac-empty">No additional contacts yet.</div>';
+    return;
+  }
+  list.innerHTML = additionalContacts.map((c, i) => `
+    <div class="ac-row">
+      <button type="button" class="ac-remove" onclick="removeContactRow(${i})" title="Remove">✕</button>
+      <div class="fgrid c3">
+        <div class="fg"><label>Name</label><input type="text" value="${(c.name||'').replace(/"/g,'&quot;')}" oninput="updateContactField(${i},'name',this.value)" placeholder="Full name"></div>
+        <div class="fg"><label>Title</label><input type="text" value="${(c.title||'').replace(/"/g,'&quot;')}" oninput="updateContactField(${i},'title',this.value)" placeholder="e.g. Principal"></div>
+        <div class="fg"><label>Department</label><input type="text" value="${(c.department||'').replace(/"/g,'&quot;')}" oninput="updateContactField(${i},'department',this.value)" placeholder="e.g. Management"></div>
+      </div>
+      <div class="fgrid" style="margin-top:10px">
+        <div class="fg"><label>LinkedIn URL</label><input type="text" value="${(c.linkedin||'').replace(/"/g,'&quot;')}" oninput="updateContactField(${i},'linkedin',this.value)" placeholder="https://linkedin.com/in/…"></div>
+        <div class="fg"><label>Email</label><input type="email" value="${(c.email||'').replace(/"/g,'&quot;')}" oninput="updateContactField(${i},'email',this.value)" placeholder="name@company.com"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addContactRow() {
+  additionalContacts.push({ name:'', title:'', department:'', linkedin:'', email:'' });
+  renderContactRows();
+}
+
+function removeContactRow(i) {
+  additionalContacts.splice(i, 1);
+  renderContactRows();
+}
+
+function updateContactField(i, field, value) {
+  if (additionalContacts[i]) additionalContacts[i][field] = value;
+}
+
+
   const r=allRecords.find(x=>x.id===id);if(!r)return;
   editingId=id;
   document.getElementById('modal-title').textContent='Edit Investor';
@@ -948,6 +1008,11 @@ function openEditModal(id) {
     'f-followup':'next_followup','f-access':'relationship_access_level','f-notes':'notes'
   };
   Object.entries(fields).forEach(([id,key])=>document.getElementById(id).value=r[key]||'');
+  document.getElementById('f-company-website').value=r.company_website||'';
+  document.getElementById('f-company-linkedin').value=r.company_linkedin||'';
+  document.getElementById('f-c2-dept').value=r.contact2_department||'';
+  additionalContacts = Array.isArray(r.additional_contacts) ? JSON.parse(JSON.stringify(r.additional_contacts)) : [];
+  renderContactRows();
   document.getElementById('f-cap-tier').value=r.education_capital_tier||'';
   document.getElementById('f-edu-role').value=r.education_role||'';
   document.getElementById('f-channel').value=r.outreach_channel||'';
@@ -970,11 +1035,16 @@ function closeModal(e){if(e&&e.target!==document.getElementById('modal-overlay')
 function clearForm(){
   ['f-investor-id','f-investor-name','f-hq-country','f-hq-city','f-regional','f-aum',
    'f-c1-name','f-c1-title','f-c1-dept','f-c1-loc','f-c1-li','f-c1-email','f-c1-mobile','f-c1-office',
-   'f-c2-name','f-c2-title','f-c2-li','f-c2-email','f-c2-mobile','f-c2-office',
+   'f-c2-name','f-c2-title','f-c2-dept','f-c2-li','f-c2-email','f-c2-mobile','f-c2-office',
    'f-first-date','f-last-date','f-followup','f-access','f-notes','f-id'].forEach(id=>document.getElementById(id).value='');
   ['f-cap-tier','f-edu-role','f-channel'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-status-sel').value='Not contacted';
   document.getElementById('f-interest').value='Unknown';
+  document.getElementById('f-company-website').value='';
+  document.getElementById('f-company-linkedin').value='';
+  document.getElementById('f-c2-dept').value='';
+  additionalContacts = [];
+  renderContactRows();
 }
 
 async function saveInvestor() {
@@ -1000,10 +1070,14 @@ async function saveInvestor() {
     key_contact_office:document.getElementById('f-c1-office').value.trim()||null,
     contact2_name:document.getElementById('f-c2-name').value.trim()||null,
     contact2_title:document.getElementById('f-c2-title').value.trim()||null,
+    contact2_department:document.getElementById('f-c2-dept').value.trim()||null,
     contact2_linkedin:document.getElementById('f-c2-li').value.trim()||null,
     contact2_email:document.getElementById('f-c2-email').value.trim()||null,
     contact2_mobile:document.getElementById('f-c2-mobile').value.trim()||null,
     contact2_office:document.getElementById('f-c2-office').value.trim()||null,
+    company_website:document.getElementById('f-company-website').value.trim()||null,
+    company_linkedin:document.getElementById('f-company-linkedin').value.trim()||null,
+    additional_contacts:additionalContacts.filter(c=>c.name&&c.name.trim()),
     outreach_channel:document.getElementById('f-channel').value||null,
     meeting_status:document.getElementById('f-status-sel').value||'Not contacted',
     interest_level:document.getElementById('f-interest').value||'Unknown',
