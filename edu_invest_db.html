@@ -992,6 +992,7 @@ function updateContactField(i, field, value) {
 }
 
 
+function openEditModal(id) {
   const r=allRecords.find(x=>x.id===id);if(!r)return;
   editingId=id;
   document.getElementById('modal-title').textContent='Edit Investor';
