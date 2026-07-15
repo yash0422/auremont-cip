@@ -71,7 +71,7 @@ DEPLOYMENT
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* ── TOKENS ─────────────────────────────────────────── */
   :root {
@@ -926,6 +926,20 @@ DEPLOYMENT
     <span id="pinStatusBadge" class="pin-badge pin-locked" onclick="openPinModal()" title="Click to unlock edit access">&#9679; View Only</span>
   </div>
 </div>
+  <!-- ── LOGIN OVERLAY ─────────────────────────────────────── -->
+<div class="pin-overlay open" id="loginOverlay">
+  <div class="pin-card">
+    <div class="pin-icon">🔐</div>
+    <div class="pin-title">Sign In</div>
+    <div class="pin-sub">Enter your credentials to access Engineering Consultant Intelligence.</div>
+    <input class="pin-input" type="email" id="loginEmail" placeholder="Email" style="letter-spacing:normal;text-align:left;margin-bottom:10px;" />
+    <input class="pin-input" type="password" id="loginPassword" placeholder="Password" style="letter-spacing:normal;text-align:left;" onkeydown="if(event.key==='Enter')doLogin()" />
+    <div class="pin-error" id="loginError"></div>
+    <div class="pin-actions">
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="doLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── PIN MODAL ─────────────────────────────────────────── -->
 <div class="pin-overlay" id="pinOverlay">
@@ -1282,15 +1296,34 @@ function requirePin(action) {
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
+const authClient = supabase.createClient(SUPABASE_URL_DEFAULT, SUPABASE_KEY_DEFAULT);
+let userAccessToken = null;
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  const { data, error } = await authClient.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; return; }
+  userAccessToken = data.session.access_token;
+  document.getElementById('loginOverlay').classList.remove('open');
+  startApp();
+}
+
+function startApp() {
   SUPA_URL = localStorage.getItem('eng_supa_url') || SUPABASE_URL_DEFAULT;
   SUPA_KEY = localStorage.getItem('eng_supa_key') || SUPABASE_KEY_DEFAULT;
+  document.getElementById('appScreen').style.display = 'block';
+  loadAll();
+}
 
-  if (!SUPA_URL || !SUPA_KEY) {
-    document.getElementById('configScreen').style.display = 'block';
-  } else {
-    document.getElementById('appScreen').style.display = 'block';
-    loadAll();
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await authClient.auth.getSession();
+  if (session) {
+    userAccessToken = session.access_token;
+    document.getElementById('loginOverlay').classList.remove('open');
+    startApp();
   }
 });
 
@@ -1314,7 +1347,7 @@ async function supa(table, method='GET', body=null, id=null) {
   const headers = {
     'Content-Type':  'application/json',
     'apikey':        SUPA_KEY,
-    'Authorization': `Bearer ${SUPA_KEY}`,
+    'Authorization': `Bearer ${userAccessToken}`,
     'Prefer':        method === 'POST' ? 'return=representation' : 'return=representation'
   };
   if (method === 'GET') headers['Accept'] = 'application/json';
@@ -1337,7 +1370,7 @@ async function supaQuery(table, params='') {
   const res = await fetch(url, {
     headers: {
       'apikey': SUPA_KEY,
-      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Authorization': `Bearer ${userAccessToken}`,
       'Accept': 'application/json'
     }
   });
@@ -1353,7 +1386,7 @@ async function supaUpsert(table, body, id=null) {
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Authorization': `Bearer ${userAccessToken}`,
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(body)
@@ -1367,7 +1400,7 @@ async function supaUpsert(table, body, id=null) {
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Authorization': `Bearer ${userAccessToken}`,
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(body)
@@ -1383,7 +1416,7 @@ async function supaDelete(table, id) {
     method: 'DELETE',
     headers: {
       'apikey': SUPA_KEY,
-      'Authorization': `Bearer ${SUPA_KEY}`
+      'Authorization': `Bearer ${userAccessToken}`
     }
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
