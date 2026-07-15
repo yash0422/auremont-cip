@@ -156,10 +156,26 @@
   ::-webkit-scrollbar { width:4px; height:4px; }
   ::-webkit-scrollbar-track { background:var(--surface); }
   ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
+
+  .login-overlay { position:fixed; inset:0; background:var(--black); z-index:300; display:flex; align-items:center; justify-content:center; }
+.login-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2.5rem; width:340px; text-align:center; }
+.login-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:0.7rem 1rem; color:var(--text); font-family:'Barlow',sans-serif; font-size:0.85rem; outline:none; margin-bottom:0.75rem; }
+.login-input:focus { border-color:var(--border-bright); }
+  
 </style>
 </head>
 <body>
 
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="logo" style="margin-bottom:2rem;">Auremont Capital<span>200 · PE · IB — Contact Intelligence Platform</span></div>
+    <input type="email" id="loginEmail" placeholder="Email" class="login-input">
+    <input type="password" id="loginPassword" placeholder="Password" class="login-input">
+    <button class="upload-action" style="width:100%;padding:0.75rem;margin-top:0.5rem;" onclick="doLogin()">Sign In</button>
+    <div id="loginError" style="color:#F1948A;font-size:0.75rem;margin-top:0.75rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.05em;"></div>
+  </div>
+</div>
+  
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <div class="loading-text" id="loadingText">Loading contacts...</div>
@@ -543,7 +559,30 @@ function showLoading(msg='Loading...') { document.getElementById('loadingText').
 function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
 
 // ── Init ─────────────────────────────────────────────────────
-(async () => { await checkConnection(); await loadContacts(); })();
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; return; }
+  document.getElementById('loginOverlay').style.display = 'none';
+  await checkConnection();
+  await loadContacts();
+}
+
+async function initAuth() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    await checkConnection();
+    await loadContacts();
+  } else {
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+}
+
+initAuth();
 </script>
 </body>
 </html>
