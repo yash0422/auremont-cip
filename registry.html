@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vishal Desai — Asset Registry</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
 :root {
   --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: #7A5E20;
   --ink: #0A0C0F; --ink-2: #141720; --ink-3: #1C2030;
@@ -227,6 +228,9 @@ td{padding:11px 10px;vertical-align:top;}
 .empty-state{padding:60px 32px;text-align:center;}
 .empty-state p{font-family:'Cormorant Garamond';font-size:20px;font-style:italic;color:var(--mist);}
 
+.login-overlay { position:fixed; inset:0; background:var(--ink); z-index:5000; display:flex; align-items:center; justify-content:center; }
+.login-box { background:var(--ink-2); border:1px solid rgba(201,168,76,0.25); border-radius:var(--r); padding:32px 36px; width:100%; max-width:340px; }
+    
 @media(max-width:768px){
   .header{padding:20px 16px 16px;}
   .toolbar{padding:10px 16px;}
@@ -238,6 +242,18 @@ td{padding:11px 10px;vertical-align:top;}
 </head>
 <body>
 
+<div class="login-overlay open" id="loginOverlay">
+  <div class="login-box">
+    <div class="footer-monogram" style="margin:0 auto 16px;">VD</div>
+    <div class="header-title" style="font-size:22px;text-align:center;">Sign In</div>
+    <p style="font-size:11px;color:var(--mist);text-align:center;margin:6px 0 20px;">Enter your credentials to access the Asset Registry.</p>
+    <input type="email" id="loginEmail" placeholder="Email" class="form-input" style="width:100%;margin-bottom:10px;">
+    <input type="password" id="loginPassword" placeholder="Password" class="form-input" style="width:100%;margin-bottom:14px;" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-save" style="width:100%;justify-content:center;" onclick="doLogin()">Sign In</button>
+    <div id="loginError" style="color:#E74C3C;font-size:11px;margin-top:10px;text-align:center;"></div>
+  </div>
+</div>
+  
 <div class="sb-status sb-err" id="sbStatus">● Connecting</div>
 
 <!-- HEADER -->
@@ -440,9 +456,24 @@ const SB_URL = 'https://nxqdkiggnflajyzmrsbj.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54cWRraWdnbmZsYWp5em1yc2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTA3OTQsImV4cCI6MjA5NjM4Njc5NH0.9lBOvvFMU0CXm1MQbiGW7aSge56uVlEbJ12SDr5EN3M';
 const TBL = 'html_registry';
 
+const authClient = supabase.createClient(SB_URL, SB_KEY);
+let userAccessToken = null;
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  const { data, error } = await authClient.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; return; }
+  userAccessToken = data.session.access_token;
+  document.getElementById('loginOverlay').classList.remove('open');
+  init();
+}
+  
 async function sbReq(path, opts={}) {
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
-    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':opts.prefer||'return=representation',...(opts.headers||{})},
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${userAccessToken}`,'Content-Type':'application/json','Prefer':opts.prefer||'return=representation',...(opts.headers||{})},
     ...opts
   });
   if(!r.ok) throw new Error(await r.text());
@@ -1077,7 +1108,14 @@ document.getElementById('guideOverlay').addEventListener('click', e => {
   if(e.target === e.currentTarget) closeGuide();
 });
 
-init();
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await authClient.auth.getSession();
+  if (session) {
+    userAccessToken = session.access_token;
+    document.getElementById('loginOverlay').classList.remove('open');
+    init();
+  }
+});
 </script>
 </body>
 </html>
