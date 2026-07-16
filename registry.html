@@ -228,7 +228,8 @@ td{padding:11px 10px;vertical-align:top;}
 .empty-state{padding:60px 32px;text-align:center;}
 .empty-state p{font-family:'Cormorant Garamond';font-size:20px;font-style:italic;color:var(--mist);}
 
-.login-overlay { position:fixed; inset:0; background:var(--ink); z-index:5000; display:flex; align-items:center; justify-content:center; }
+.login-overlay { position:fixed; inset:0; background:var(--ink); z-index:5000; display:none; align-items:center; justify-content:center; }
+.login-overlay.open { display:flex; }
 .login-box { background:var(--ink-2); border:1px solid rgba(201,168,76,0.25); border-radius:var(--r); padding:32px 36px; width:100%; max-width:340px; }
     
 @media(max-width:768px){
